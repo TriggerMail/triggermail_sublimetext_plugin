@@ -25,7 +25,6 @@ class PreviewTemplateCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         filename = self.view.file_name()
-        print filename
         if not filename:
             sublime.error_message("You have to provide a template path.")
 
@@ -42,9 +41,11 @@ class PreviewTemplateCommand(sublime_plugin.TextCommand):
                 if filename.endswith(".html"):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
+
         partner = path.split(os.sep)[-1]
         print "Attempting to render %s for %s" % (action, partner)
-        request = requests.post(settings.get("engine"), data=dict(templates=json.dumps(file_map), partner=partner, action=action))
+
+        request = requests.post(settings.get("engine", "http://www.triggermail.io/api/templates/render_raw_template"), data=dict(templates=json.dumps(file_map), partner=partner, action=action))
         response = request.text
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
         temp.write(response.encode("utf-8"))
