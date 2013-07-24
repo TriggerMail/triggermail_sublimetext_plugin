@@ -12,7 +12,6 @@ try:
 except:
     settings = {}
 
-ENGINE_URI = "http://localhost:8080/api/templates/render_raw_template"
 
 def read_file(filename):
     fh = open(filename, "r")
@@ -45,7 +44,7 @@ class PreviewTemplateCommand(sublime_plugin.TextCommand):
                     file_map[filename] = contents
         partner = path.split(os.sep)[-1]
         print "Attempting to render %s for %s" % (action, partner)
-        request = requests.post(ENGINE_URI, data=dict(templates=json.dumps(file_map), partner=partner, action=action))
+        request = requests.post(settings.get("engine"), data=dict(templates=json.dumps(file_map), partner=partner, action=action))
         response = request.text
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
         temp.write(response.encode("utf-8"))

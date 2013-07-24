@@ -1,0 +1,7 @@
+{
+
+    /*
+    URL of the engine
+     */
+    "engine": "http://triggermail.io/api/templates/render_raw_template"
+}
