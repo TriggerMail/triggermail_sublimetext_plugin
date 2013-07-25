@@ -1,0 +1,10 @@
+{
+    /*
+    URL of the engine
+     */
+    "engine": "http://www.triggermail.io/api/templates/render_raw_template",
+    /*
+    The name of the partner
+     */
+    "partner": "tommy_john"
+}

@@ -1,4 +1,12 @@
 [{
   "caption": "TriggerMail: Preview Template",
   "command": "preview_template"
-}]
+},
+{
+    "caption": "TriggerMail: Open settings file",
+    "command": "open_file", "args":
+    {
+        "file": "${packages}/triggermail_sublimetext_plugin/TriggerMail.sublime-settings"
+    }
+}
+]
