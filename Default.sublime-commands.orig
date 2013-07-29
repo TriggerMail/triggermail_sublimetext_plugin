@@ -3,10 +3,13 @@
   "command": "preview_template"
 },
 {
+<<<<<<< HEAD
+=======
   "caption": "TriggerMail: Send Email Preview",
   "command": "send_email_preview"
 },
 {
+>>>>>>> updates
     "caption": "TriggerMail: Open settings file",
     "command": "open_file", "args":
     {

@@ -19,8 +19,15 @@ def read_file(filename):
     fh.close()
     return contents
 
+<<<<<<< HEAD
+class PreviewTemplateCommand(sublime_plugin.TextCommand):
+    def parse_partner_and_action(self):
+        pass
+
+=======
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
+>>>>>>> updates
     def run(self, edit):
         filename = self.view.file_name()
         if not filename:
@@ -32,9 +39,12 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         path = os.path.dirname(filename)
         action = filename.replace(path, "").replace(".html", "").strip(os.sep)
+<<<<<<< HEAD
+=======
         partner = path.split(os.sep)[-1]
         # You can override the partner in the settings file
         partner = settings.get("partner", partner) or partner
+>>>>>>> updates
 
         # Read all the files in the given folder.
         # We gather them all and then send them up to GAE.
@@ -42,6 +52,26 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_map = dict()
         for root, dirs, files in os.walk(path):
             for filename in files:
+<<<<<<< HEAD
+                if filename.endswith(".html"):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map[filename] = contents
+
+        partner = path.split(os.sep)[-1]
+        # You can override the partner in the settings file
+        partner = settings.get("partner", partner)
+        print "Attempting to render %s for %s" % (action, partner)
+
+        request = requests.post(settings.get("engine", "http://www.triggermail.io/api/templates/render_raw_template"), data=dict(templates=json.dumps(file_map), partner=partner, action=action, format="json"))
+        response = request.text
+        if request.status_code == 500:
+            return sublime.error_message(request.json().get("message"))
+
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        temp.write(response.encode("utf-8"))
+        temp.close()
+        webbrowser.open("file://"+temp.name)
+=======
                 if filename.endswith(".html") or filename.endswith(".txt"):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
@@ -69,3 +99,4 @@ class SendEmailPreview(_BasePreviewCommand) :
         self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_to_email"
         super(SendEmailPreview, self).run(edit)
         self.view.set_status("trigger_mail", "Sent an email preview")
+>>>>>>> updates
