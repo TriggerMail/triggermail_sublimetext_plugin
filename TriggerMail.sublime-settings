@@ -3,6 +3,7 @@
     URL of the engine
      */
     "engine": "http://www.triggermail.io/",
+    // "engine": "http://lo/",
     "preview_email": "mahmoud+preview@triggermail.io",
     /*
     The name of the partner

@@ -5,7 +5,7 @@ import webbrowser
 import tempfile
 import sublime, sublime_plugin
 import webbrowser
-import requests
+import urllib, urllib2
 
 try:
     settings = sublime.load_settings('TriggerMail.sublime-settings')
@@ -48,21 +48,23 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         print "Attempting to render %s for %s" % (action, partner)
         print "url is %s" % self.url
-        request = requests.post(self.url, data=dict(templates=json.dumps(file_map), partner=partner, action=action, format="json"))
-        response = request.text
-        print response.text
-        if request.status_code == 500:
-            return sublime.error_message(request.json().get("message"))
-        return response
+        print file_map.keys()
+        params = dict(templates=json.dumps(file_map), partner=partner, action=action, format="json")
+        request = urllib2.Request(self.url, urllib.urlencode(params))
+        try:
+            response = urllib2.urlopen(request)
+        except urllib2.URLError, e:
+            return sublime.error_message(json.loads(e.read()).get("message"))
+        return response.read()
 
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
         self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_raw_template"
         response = super(PreviewTemplate, self).run(edit)
-        # temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-        # temp.write(response.encode("utf-8"))
-        # temp.close()
-        # webbrowser.open("file://"+temp.name)
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        temp.write(response)
+        temp.close()
+        webbrowser.open("file://"+temp.name)
 
 class SendEmailPreview(_BasePreviewCommand) :
     def run(self, edit):
