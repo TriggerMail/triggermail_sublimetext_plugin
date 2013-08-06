@@ -6,7 +6,7 @@ import tempfile
 import sublime, sublime_plugin
 import webbrowser
 import urllib, urllib2
-
+import base64
 try:
     settings = sublime.load_settings('TriggerMail.sublime-settings')
 except:
@@ -19,6 +19,13 @@ def read_file(filename):
     fh.close()
     return contents
 
+def encode_image(filename):
+    """ Base64 encodes an image so that we can embed it in the html.
+    """
+    with open(filename, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return encoded_string
+
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
     def run(self, edit):
@@ -30,6 +37,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         if not os.path.exists(filename):
             return sublime.error_message("File does not exist")
 
+        # Read all the HTML files
         path = os.path.dirname(filename)
         action = filename.replace(path, "").replace(".html", "").strip(os.sep)
         partner = path.split(os.sep)[-1]
@@ -46,15 +54,31 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
 
+        # Read all the image files for this partner. Obviously, this is inefficient, and we should probably
+        # only read the files that are used in the html file.
+        # But we have no facilities for this kind of processing here, since it is a PITA to install pip
+        # packages through a sublimetext plugin.
+        # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
+        # as long as you are on a fast connection.
+        image_path = os.path.join(path, "..", "..", "..", "..", "static", "img", partner)
+        print os.path.abspath(image_path)
+        for root, dirs, files in os.walk(image_path):
+            for filename in files:
+                contents = encode_image(os.path.join(root, filename))
+                file_map[filename] = contents
+
         print "Attempting to render %s for %s" % (action, partner)
         print "url is %s" % self.url
         print file_map.keys()
+
         params = dict(templates=json.dumps(file_map), partner=partner, action=action, format="json")
         request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             response = urllib2.urlopen(request)
         except urllib2.URLError, e:
-            return sublime.error_message(json.loads(e.read()).get("message"))
+            if hasattr(e, "read"):
+                return sublime.error_message(json.loads(e.read()).get("message"))
+            return sublime.error_message(str(e))
         return response.read()
 
 class PreviewTemplate(_BasePreviewCommand):
