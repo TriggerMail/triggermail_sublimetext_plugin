@@ -71,7 +71,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         print "url is %s" % self.url
         print file_map.keys()
 
-        params = dict(templates=json.dumps(file_map), partner=partner, action=action, format="json")
+        params = dict(product_count=settings.get("product_count", 3), templates=json.dumps(file_map), partner=partner, action=action, format="json")
         request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             response = urllib2.urlopen(request)

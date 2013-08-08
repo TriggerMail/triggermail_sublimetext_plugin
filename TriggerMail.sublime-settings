@@ -5,6 +5,7 @@
     "engine": "http://www.triggermail.io/",
     // "engine": "http://lo/",
     "preview_email": "mahmoud+preview@triggermail.io",
+    "product_count": 4,
     /*
     The name of the partner
      */
