@@ -32,7 +32,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         filename = self.view.file_name()
         if not filename:
             return sublime.error_message("You have to provide a template path.")
-        if not filename.endswith(".html"):
+        if not filename.endswith(".html") and not filename.endswith(".txt"):
             return sublime.error_message("Invalid html template %s" % filename)
         if not os.path.exists(filename):
             return sublime.error_message("File does not exist")
@@ -43,6 +43,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         partner = path.split(os.sep)[-1]
         # You can override the partner in the settings file
         partner = settings.get("partner", partner) or partner
+        partner = partner.replace("_templates", "")
 
         # Read all the files in the given folder.
         # We gather them all and then send them up to GAE.
@@ -61,7 +62,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
         # as long as you are on a fast connection.
         image_path = os.path.join(path, "..", "..", "..", "..", "static", "img", partner)
-        print os.path.abspath(image_path)
+
+        if not os.path.exists(image_path):
+            # For when the templates are in a separate repo.
+            image_path = os.path.join(path, "img", partner)
+
         for root, dirs, files in os.walk(image_path):
             for filename in files:
                 contents = encode_image(os.path.join(root, filename))
@@ -94,4 +99,4 @@ class SendEmailPreview(_BasePreviewCommand) :
     def run(self, edit):
         self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_to_email"
         super(SendEmailPreview, self).run(edit)
-        self.view.set_status("trigger_mail", "Sent an email preview")
+        print self.view.set_status("trigger_mail", "Sent an email preview")
