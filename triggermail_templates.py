@@ -28,6 +28,9 @@ def encode_image(filename):
 
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
+    def get_extra_params(self):
+        return dict()
+
     def run(self, edit):
         filename = self.view.file_name()
         if not filename:
@@ -77,6 +80,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         print file_map.keys()
 
         params = dict(product_count=settings.get("product_count", 3), templates=json.dumps(file_map), partner=partner, action=action, format="json")
+        params.update(self.get_extra_params())
+
         request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             response = urllib2.urlopen(request)
@@ -96,6 +101,9 @@ class PreviewTemplate(_BasePreviewCommand):
         webbrowser.open("file://"+temp.name)
 
 class SendEmailPreview(_BasePreviewCommand) :
+    def get_extra_params(self):
+        return dict(email=settings.get("preview_email", ""))
+
     def run(self, edit):
         self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_to_email"
         super(SendEmailPreview, self).run(edit)
