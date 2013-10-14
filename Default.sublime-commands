@@ -1,10 +1,14 @@
 [{
-  "caption": "TriggerMail: Preview Template",
+  "caption": "TriggerMail: preview this template",
   "command": "preview_template"
 },
 {
-  "caption": "TriggerMail: Send Email Preview",
+  "caption": "TriggerMail: send email preview",
   "command": "send_email_preview"
+},
+{
+  "caption": "TriggerMail: test on email clients",
+  "command": "send_test_preview"
 },
 {
     "caption": "TriggerMail: Open settings file",

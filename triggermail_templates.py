@@ -108,3 +108,12 @@ class SendEmailPreview(_BasePreviewCommand) :
         self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_to_email"
         super(SendEmailPreview, self).run(edit)
         print self.view.set_status("trigger_mail", "Sent an email preview")
+
+class SendTestPreview(_BasePreviewCommand):
+    def get_extra_params(self):
+        return dict(email=settings.get("preview_email", ""))
+
+    def run(self, edit):
+        self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_client_tests"
+        super(SendTestPreview, self).run(edit)
+        print(self.view.set_status("trigger_mail", "Sent client test previews"))
