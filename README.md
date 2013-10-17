@@ -11,7 +11,7 @@ You can install the plugin directly from Github. See here for instructions:
 http://www.macdrifter.com/2012/08/install-sublime-packages-from-github.html
 
 ## Edit the settings file
-Press `Command`+`p` to get to the SublimeText command palette and pick `TriggerMail: open settings file`.
+Press `Shift`+`Command`+`p` to get to the SublimeText command palette and pick `TriggerMail: open settings file`.
 Edit the configuration file to add your email address. The plugin will send email tests and previews to that:
 
 ```
