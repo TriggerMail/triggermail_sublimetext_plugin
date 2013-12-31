@@ -1,14 +1,12 @@
-import sys
-import os
-import json
-import webbrowser
-import tempfile
-import sublime, sublime_plugin
-import webbrowser
-import codecs
-import urllib
 from urllib.request import urlopen
 import base64
+import codecs
+import json
+import os
+import sublime, sublime_plugin
+import tempfile
+import urllib, urllib2
+import webbrowser
 # try:
 settings = sublime.load_settings('TriggerMail.sublime-settings')
 # except:
@@ -44,7 +42,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         # Read all the HTML files
         path = os.path.dirname(filename)
-        action = filename.replace(path, "").replace(".html", "").strip(os.sep)
+        action = filename.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         partner = path.split(os.sep)[-1]
         # You can override the partner in the settings file
         partner = settings.get("partner", partner) or partner
@@ -83,7 +81,13 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         print("Attempting to render %s for %s" % (action, partner))
         print("url is %s" % self.url)
 
-        params = dict(product_count=settings.get("product_count", 3), templates=json.dumps(file_map), partner=partner, action=action, format="json")
+        params = dict(product_count=settings.get("product_count", 3),
+                    templates=json.dumps(file_map),
+                    partner=partner,
+                    action=action,
+                    format="json",
+                    strategy=settings.get('strategy', None),
+                    use_dev='dev.' in filename)
         params.update(self.get_extra_params())
 
         # request = urllib2.Request(self.url, urllib.urlencode(params))
