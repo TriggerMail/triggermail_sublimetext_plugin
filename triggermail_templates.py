@@ -30,17 +30,17 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         return dict()
 
     def run(self, edit):
-        filename = self.view.file_name()
-        if not filename:
+        template_filename = self.view.file_name()
+        if not template_filename:
             return sublime.error_message("You have to provide a template path.")
-        if not filename.endswith(".html") and not filename.endswith(".txt"):
-            return sublime.error_message("Invalid html template %s" % filename)
-        if not os.path.exists(filename):
+        if not template_filename.endswith(".html") and not template_filename.endswith(".txt"):
+            return sublime.error_message("Invalid html template %s" % template_filename)
+        if not os.path.exists(template_filename):
             return sublime.error_message("File does not exist")
 
         # Read all the HTML files
-        path = os.path.dirname(filename)
-        action = filename.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
+        path = os.path.dirname(template_filename)
+        action = template_filename.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         partner = path.split(os.sep)[-1]
         # You can override the partner in the settings file
         partner = settings.get("partner", partner) or partner
@@ -83,7 +83,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     action=action,
                     format="json",
                     strategy=settings.get('strategy', None),
-                    use_dev='dev.' in filename)
+                    strategy_kwargs=settings.get('strategy_kwargs', {}),
+                    use_dev='dev.' in template_filename)
         params.update(self.get_extra_params())
 
         request = urllib2.Request(self.url, urllib.urlencode(params))
@@ -104,7 +105,7 @@ class PreviewTemplate(_BasePreviewCommand):
         temp.close()
         webbrowser.open("file://"+temp.name)
 
-class SendEmailPreview(_BasePreviewCommand) :
+class SendEmailPreview(_BasePreviewCommand):
     def get_extra_params(self):
         return dict(email=settings.get("preview_email", ""))
 
