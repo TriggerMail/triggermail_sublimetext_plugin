@@ -26,7 +26,7 @@ Edit the configuration file to add your email address. The plugin will send emai
     The name of the partner
      */
     "partner": "tommy_john",
-    "strategy": "RelatedProducts",
+    "strategy": "AttributeRank",
     "strategy_kwargs": "{\"attributes\": [\"brand\"]}"
 }
 ```
