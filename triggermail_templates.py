@@ -5,7 +5,7 @@ import json
 import os
 import sublime, sublime_plugin
 import tempfile
-import urllib, urllib2
+import urllib
 import webbrowser
 # try:
 settings = sublime.load_settings('TriggerMail.sublime-settings')
