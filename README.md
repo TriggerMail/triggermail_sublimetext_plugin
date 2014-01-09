@@ -31,6 +31,8 @@ Edit the configuration file to add your email address. The plugin will send emai
 }
 ```
 
+Both `strategy` and `strategy_kwargs` are optional parameters. These allow you to test a strategy with a template without having to assign it to the partner in production.
+
 ## Using the Plugin
 There are three commands:
 
