@@ -6,6 +6,7 @@
     // "engine": "http://lo/",
     "preview_email": "mahmoud@triggermail.io",
     "product_count": 4,
+    "strategy": "AttributeRank",
     /*
     The name of the partner
      */
