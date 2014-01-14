@@ -2,10 +2,11 @@
     /*
     URL of the engine
      */
-    "engine": "http://www.triggermail.io/",
+    "engine": "http://debug.triggeredmail.appspot.com/",
     // "engine": "http://lo/",
-    "preview_email": "mahmoud+preview@triggermail.io",
+    "preview_email": "mahmoud@triggermail.io",
     "product_count": 4,
+    "strategy": "AttributeRank",
     /*
     The name of the partner
      */
