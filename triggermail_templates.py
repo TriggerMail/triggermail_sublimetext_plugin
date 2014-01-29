@@ -43,6 +43,10 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # Read all the HTML files
         path = os.path.dirname(template_filename)
         action = template_filename.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
+        generation = 0
+        if action[-1] in '0123456789':
+            generation = action.split('_')[-1]
+            action = '_'.join(action.split('_')[:-1])
         partner = path.split(os.sep)[-1]
         # You can override the partner in the settings file
         partner = settings.get("partner", partner) or partner
@@ -89,7 +93,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     cpn=settings.get("cpn", None),
                     strategy=settings.get('strategy', None),
                     strategy_kwargs=settings.get('strategy_kwargs', {}),
-                    use_dev='dev.' in template_filename)
+                    use_dev='dev.' in template_filename,
+                    generation=generation)
         params.update(self.get_extra_params())
 
         # request = urllib2.Request(self.url, urllib.urlencode(params))
