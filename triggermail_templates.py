@@ -90,7 +90,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     partner=partner,
                     action=action,
                     format="json",
-                    cpn=settings.get("cpn", None),
+                    cpn=settings.get("cpn", ""),
                     strategy=settings.get('strategy', None),
                     strategy_kwargs=settings.get('strategy_kwargs', {}),
                     use_dev='dev.' in template_filename,
