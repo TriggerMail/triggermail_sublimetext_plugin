@@ -114,7 +114,7 @@ class PreviewTemplate(_BasePreviewCommand):
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
         except TypeError:
-            self.url = "http://www.triggermail.io"
+            self.url = "http://www.triggermail.io/"
         self.url += "api/templates/render_raw_template"
 
         response = super(PreviewTemplate, self).run(edit)
@@ -132,7 +132,7 @@ class SendEmailPreview(_BasePreviewCommand):
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
         except TypeError:
-            self.url = "http://www.triggermail.io"
+            self.url = "http://www.triggermail.io/"
         self.url += "api/templates/render_to_email"
 
         super(SendEmailPreview, self).run(edit)
@@ -147,7 +147,7 @@ class SendTestPreview(_BasePreviewCommand):
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
         except TypeError:
-            self.url = "http://www.triggermail.io"
+            self.url = "http://www.triggermail.io/"
         self.url += "api/templates/render_client_tests"
 
         super(SendTestPreview, self).run(edit)
