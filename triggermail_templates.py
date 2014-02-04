@@ -110,7 +110,13 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
-        self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_raw_template"
+        self.url = ""
+        try:
+            self.url += settings.get("engine", "http://www.triggermail.io/")
+        except TypeError:
+            self.url = "http://www.triggermail.io"
+        self.url += "api/templates/render_raw_template"
+
         response = super(PreviewTemplate, self).run(edit)
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
         temp.write(response)
@@ -122,7 +128,13 @@ class SendEmailPreview(_BasePreviewCommand):
         return dict(email=settings.get("preview_email", ""))
 
     def run(self, edit):
-        self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_to_email"
+        self.url = ""
+        try:
+            self.url += settings.get("engine", "http://www.triggermail.io/")
+        except TypeError:
+            self.url = "http://www.triggermail.io"
+        self.url += "api/templates/render_to_email"
+
         super(SendEmailPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent an email preview"))
 
@@ -131,7 +143,13 @@ class SendTestPreview(_BasePreviewCommand):
         return dict(email=settings.get("preview_email", ""))
 
     def run(self, edit):
-        self.url = settings.get("engine", "http://www.triggermail.io/") + "api/templates/render_client_tests"
+        self.url = ""
+        try:
+            self.url += settings.get("engine", "http://www.triggermail.io/")
+        except TypeError:
+            self.url = "http://www.triggermail.io"
+        self.url += "api/templates/render_client_tests"
+
         super(SendTestPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent client test previews"))
 
