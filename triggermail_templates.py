@@ -90,11 +90,16 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     partner=partner,
                     action=action,
                     format="json",
-                    cpn=settings.get("cpn", ""),
                     strategy=settings.get('strategy', None),
                     strategy_kwargs=settings.get('strategy_kwargs', {}),
                     use_dev='dev.' in template_filename,
                     generation=generation)
+        try:
+            cpn = settings.get("cpn")
+            assert cpn
+            params["cpn"] = cpn
+        except:
+            pass
         params.update(self.get_extra_params())
 
         # request = urllib2.Request(self.url, urllib.urlencode(params))
