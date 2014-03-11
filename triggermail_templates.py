@@ -1,17 +1,11 @@
 from urllib.request import urlopen
 import base64
-import codecs
 import json
 import os
 import sublime, sublime_plugin
 import tempfile
 import urllib
 import webbrowser
-# try:
-settings = sublime.load_settings('TriggerMail.sublime-settings')
-# except:
-    # settings = {}
-
 
 def read_file(filename):
     fh = open(filename, "r", encoding="utf-8")
@@ -26,12 +20,16 @@ def encode_image(filename):
         encoded_string = base64.b64encode(image_file.read())
     return encoded_string.decode("utf-8")
 
+def load_settings():
+    return sublime.load_settings('TriggerMail.sublime-settings')
+
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
     def get_extra_params(self):
         return dict()
 
     def run(self, edit):
+        settings = load_settings()
         template_filename = self.view.file_name()
         if not template_filename:
             return sublime.error_message("You have to provide a template path.")
@@ -94,6 +92,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     strategy_kwargs=settings.get('strategy_kwargs', {}),
                     use_dev='dev.' in template_filename,
                     generation=generation)
+        print(params)
         try:
             cpn = settings.get("cpn")
             assert cpn
@@ -115,6 +114,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
+        settings = load_settings()
         self.url = ""
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
@@ -130,9 +130,11 @@ class PreviewTemplate(_BasePreviewCommand):
 
 class SendEmailPreview(_BasePreviewCommand):
     def get_extra_params(self):
+        settings = load_settings()
         return dict(email=settings.get("preview_email", ""))
 
     def run(self, edit):
+        settings = load_settings()
         self.url = ""
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
@@ -145,9 +147,11 @@ class SendEmailPreview(_BasePreviewCommand):
 
 class SendTestPreview(_BasePreviewCommand):
     def get_extra_params(self):
+        settings = load_settings()
         return dict(email=settings.get("preview_email", ""))
 
     def run(self, edit):
+        settings = load_settings()
         self.url = ""
         try:
             self.url += settings.get("engine", "http://www.triggermail.io/")
