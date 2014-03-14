@@ -183,19 +183,11 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
 
         try:
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
-            print(response.url)
         except urllib.error.URLError as e:
             if hasattr(e, "read"):
-                print('.....')
-                print(e.strerror)
-                print(e.msg)
-                print(e.info())
-                print(e.reason)
-                print(e.url)
-                print()
                 return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
             return sublime.error_message(str(e))
-        return sublime.message_dialog('YAYYY')
+        return sublime.message_dialog('YAYYY Valid!')
 
 
 
