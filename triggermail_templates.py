@@ -170,13 +170,6 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
         if not os.path.exists(recipe_rules_file):
             return sublime.error_message("File does not exist")
 
-        path = os.path.dirname(recipe_rules_file)
-        action = recipe_rules_file.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
-        if action[-1] in '0123456789':
-            action = '_'.join(action.split('_')[:-1])
-        partner = path.split(os.sep)[-1]
-        partner = partner.replace("_templates", "")
-
         params = dict(
             recipe_rules_file=recipe_rules_file,
         )
