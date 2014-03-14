@@ -23,6 +23,12 @@ def encode_image(filename):
 def load_settings():
     return sublime.load_settings('TriggerMail.sublime-settings')
 
+def get_url(settings):
+    try:
+        return settings.get("engine", "http://www.triggermail.io/")
+    except TypeError:
+        return "http://www.triggermail.io/"
+
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
     def get_extra_params(self):
@@ -115,11 +121,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
         settings = load_settings()
-        self.url = ""
-        try:
-            self.url += settings.get("engine", "http://www.triggermail.io/")
-        except TypeError:
-            self.url = "http://www.triggermail.io/"
+        self.url = get_url(settings)
         self.url += "api/templates/render_raw_template"
 
         response = super(PreviewTemplate, self).run(edit)
@@ -135,11 +137,7 @@ class SendEmailPreview(_BasePreviewCommand):
 
     def run(self, edit):
         settings = load_settings()
-        self.url = ""
-        try:
-            self.url += settings.get("engine", "http://www.triggermail.io/")
-        except TypeError:
-            self.url = "http://www.triggermail.io/"
+        self.url = get_url(settings)
         self.url += "api/templates/render_to_email"
 
         super(SendEmailPreview, self).run(edit)
@@ -152,13 +150,52 @@ class SendTestPreview(_BasePreviewCommand):
 
     def run(self, edit):
         settings = load_settings()
-        self.url = ""
-        try:
-            self.url += settings.get("engine", "http://www.triggermail.io/")
-        except TypeError:
-            self.url = "http://www.triggermail.io/"
+        self.url = get_url(settings)
         self.url += "api/templates/render_client_tests"
 
         super(SendTestPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent client test previews"))
+
+class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
+    def run(self, edit):
+        settings = load_settings()
+        self.url = get_url(settings)
+        self.url += "api/templates/validate_recipe_rules_file"
+
+        recipe_rules_file = self.view.file_name()
+        if not recipe_rules_file:
+            return sublime.error_message("You have to provide a template path.")
+        if not recipe_rules_file.endswith(".yaml"):
+            return sublime.error_message("Not a YAML file: %s" % recipe_rules_file)
+        if not os.path.exists(recipe_rules_file):
+            return sublime.error_message("File does not exist")
+
+        path = os.path.dirname(recipe_rules_file)
+        action = recipe_rules_file.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
+        if action[-1] in '0123456789':
+            action = '_'.join(action.split('_')[:-1])
+        partner = path.split(os.sep)[-1]
+        partner = partner.replace("_templates", "")
+
+        params = dict(
+            recipe_rules_file=recipe_rules_file,
+        )
+
+        try:
+            response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
+            print(response.url)
+        except urllib.error.URLError as e:
+            if hasattr(e, "read"):
+                print('.....')
+                print(e.strerror)
+                print(e.msg)
+                print(e.info())
+                print(e.reason)
+                print(e.url)
+                print()
+                return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
+            return sublime.error_message(str(e))
+        return sublime.message_dialog('YAYYY')
+
+
 
