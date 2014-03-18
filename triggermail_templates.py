@@ -170,8 +170,9 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
         if not os.path.exists(recipe_rules_file):
             return sublime.error_message("File does not exist")
 
+        # send the contents of the file
         params = dict(
-            recipe_rules_file=recipe_rules_file,
+            recipe_rules_file=read_file(recipe_rules_file),
         )
 
         try:
