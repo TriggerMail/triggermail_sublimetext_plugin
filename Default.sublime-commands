@@ -16,5 +16,9 @@
     {
         "file": "${packages}/triggermail_sublimetext_plugin/TriggerMail.sublime-settings"
     }
+},
+{
+    "caption": "TriggerMail: Validate recipe rules file",
+    "command": "validate_recipe_rules_file"
 }
 ]
