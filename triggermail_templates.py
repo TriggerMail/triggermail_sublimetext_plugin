@@ -56,35 +56,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         partner = settings.get("partner", partner) or partner
         partner = partner.replace("_templates", "")
 
-        # Read all the files in the given folder.
-        # We gather them all and then send them up to GAE.
-        # We do this rather than processing template locally. Because local processing
-        file_map = dict()
-        for root, dirs, files in os.walk(path):
-            for filename in files:
-                if filename.endswith(".html") or filename.endswith(".txt"):
-                    contents = read_file(os.path.join(root, filename))
-                    file_map[filename] = contents
-
-        # Read all the image files for this partner. Obviously, this is inefficient, and we should probably
-        # only read the files that are used in the html file.
-        # But we have no facilities for this kind of processing here, since it is a PITA to install pip
-        # packages through a sublimetext plugin.
-        # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
-        # as long as you are on a fast connection.
-        image_path = os.path.abspath(os.path.join(path, "..", "..", "..", "..", "static", "img", partner))
-
-        if not os.path.exists(image_path):
-            # For when the templates are in a separate repo.
-            image_path = os.path.abspath(os.path.join(path, "img", partner))
-
-        for root, dirs, files in os.walk(image_path):
-            for filename in files:
-                image_path = os.path.abspath(os.path.join(root, filename))
-                print(image_path)
-                contents = encode_image(image_path)
-                print(contents)
-                file_map[filename] = contents
+        file_map = generate_file_map(partner, path)
 
         print("Attempting to render %s for %s" % (action, partner))
         print("url is %s" % self.url)
@@ -117,6 +89,39 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                 return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
             return sublime.error_message(str(e))
         return response.read()
+
+def generate_file_map(partner, path):
+    # Read all the files in the given folder.
+    # We gather them all and then send them up to GAE.
+    # We do this rather than processing template locally. Because local processing
+    file_map = dict()
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            if filename.endswith(".html") or filename.endswith(".txt"):
+                contents = read_file(os.path.join(root, filename))
+                file_map[filename] = contents
+
+    # Read all the image files for this partner. Obviously, this is inefficient, and we should probably
+    # only read the files that are used in the html file.
+    # But we have no facilities for this kind of processing here, since it is a PITA to install pip
+    # packages through a sublimetext plugin.
+    # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
+    # as long as you are on a fast connection.
+    image_path = os.path.abspath(os.path.join(path, "..", "..", "..", "..", "static", "img", partner))
+
+    if not os.path.exists(image_path):
+        # For when the templates are in a separate repo.
+        image_path = os.path.abspath(os.path.join(path, "img", partner))
+
+    for root, dirs, files in os.walk(image_path):
+        for filename in files:
+            image_path = os.path.abspath(os.path.join(root, filename))
+            print(image_path)
+            contents = encode_image(image_path)
+            print(contents)
+            file_map[filename] = contents
+
+    return file_map
 
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
