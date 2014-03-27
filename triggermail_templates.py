@@ -63,13 +63,14 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         recipe_rules_file = settings.get('recipe_rules_file', '')
         if recipe_rules_file:
-            recipe_rules_file = read_file(recipe_rules_file)
+            recipe_rules_file = read_file(os.path.join(path, recipe_rules_file))
 
         params = dict(product_count=settings.get("product_count", 3),
                     templates=json.dumps(file_map),
                     partner=partner,
                     action=action,
                     format="json",
+                    products=json.dumps(settings.get("products")),
                     recipe_rules_file=recipe_rules_file,
                     use_dev='dev.' in template_filename,
                     generation=generation)
