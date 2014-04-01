@@ -44,36 +44,27 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         if not os.path.exists(template_filename):
             return sublime.error_message("File does not exist")
 
+        self.dissect_filename(template_filename, settings)
+
         # Read all the HTML files
-        path = os.path.dirname(template_filename)
-        action = template_filename.replace(path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
-        generation = 0
-        if action[-1] in '0123456789':
-            generation = action.split('_')[-1]
-            action = '_'.join(action.split('_')[:-1])
-        partner = path.split(os.sep)[-1]
-        # You can override the partner in the settings file
-        partner = settings.get("partner", partner) or partner
-        partner = partner.replace("_templates", "")
+        file_map = generate_file_map(self.partner, self.path)
 
-        file_map = generate_file_map(partner, path)
-
-        print("Attempting to render %s for %s" % (action, partner))
+        print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
 
         recipe_rules_file = settings.get('recipe_rules_file', '')
         if recipe_rules_file:
-            recipe_rules_file = read_file(os.path.join(path, recipe_rules_file))
+            recipe_rules_file = read_file(os.path.join(self.path, recipe_rules_file))
 
         params = dict(product_count=settings.get("product_count", 3),
                     templates=json.dumps(file_map),
-                    partner=partner,
-                    action=action,
+                    partner=self.partner,
+                    action=self.action,
                     format="json",
                     products=json.dumps(settings.get("products")),
                     recipe_rules_file=recipe_rules_file,
                     use_dev='dev.' in template_filename,
-                    generation=generation)
+                    generation=self.generation)
         print(params)
         try:
             cpn = settings.get("cpn")
@@ -93,6 +84,19 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                 return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
             return sublime.error_message(str(e))
         return response.read()
+
+    def dissect_filename(self, template_filename, settings):
+        self.path = os.path.dirname(template_filename)
+        self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
+        self.generation = 0
+        if self.action[-1] in '0123456789':
+            self.generation = self.action.split('_')[-1]
+            self.action = '_'.join(self.action.split('_')[:-1])
+        self.partner = self.path.split(os.sep)[-1]
+        # You can override the partner in the settings file
+        self.partner = settings.get("partner", self.partner) or self.partner
+        self.partner = self.partner.replace("_templates", "")
+
 
 def generate_file_map(partner, path):
     # Read all the files in the given folder.
