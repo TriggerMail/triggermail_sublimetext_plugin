@@ -47,7 +47,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.dissect_filename(template_filename, settings)
 
         # Read all the HTML files
-        file_map = generate_file_map(self.partner, self.path)
+        file_map = self.generate_file_map()
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
@@ -97,39 +97,38 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.partner = settings.get("partner", self.partner) or self.partner
         self.partner = self.partner.replace("_templates", "")
 
+    def generate_file_map(self):
+        # Read all the files in the given folder.
+        # We gather them all and then send them up to GAE.
+        # We do this rather than processing template locally. Because local processing
+        file_map = dict()
+        for root, dirs, files in os.walk(self.path):
+            for filename in files:
+                if filename.endswith(".html") or filename.endswith(".txt"):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map[filename] = contents
 
-def generate_file_map(partner, path):
-    # Read all the files in the given folder.
-    # We gather them all and then send them up to GAE.
-    # We do this rather than processing template locally. Because local processing
-    file_map = dict()
-    for root, dirs, files in os.walk(path):
-        for filename in files:
-            if filename.endswith(".html") or filename.endswith(".txt"):
-                contents = read_file(os.path.join(root, filename))
+        # Read all the image files for this partner. Obviously, this is inefficient, and we should probably
+        # only read the files that are used in the html file.
+        # But we have no facilities for this kind of processing here, since it is a PITA to install pip
+        # packages through a sublimetext plugin.
+        # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
+        # as long as you are on a fast connection.
+        image_path = os.path.abspath(os.path.join(self.path, "..", "..", "..", "..", "static", "img", self.partner))
+
+        if not os.path.exists(image_path):
+            # For when the templates are in a separate repo.
+            image_path = os.path.abspath(os.path.join(self.path, "img", self.partner))
+
+        for root, dirs, files in os.walk(image_path):
+            for filename in files:
+                image_path = os.path.abspath(os.path.join(root, filename))
+                print(image_path)
+                contents = encode_image(image_path)
+                print(contents)
                 file_map[filename] = contents
 
-    # Read all the image files for this partner. Obviously, this is inefficient, and we should probably
-    # only read the files that are used in the html file.
-    # But we have no facilities for this kind of processing here, since it is a PITA to install pip
-    # packages through a sublimetext plugin.
-    # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
-    # as long as you are on a fast connection.
-    image_path = os.path.abspath(os.path.join(path, "..", "..", "..", "..", "static", "img", partner))
-
-    if not os.path.exists(image_path):
-        # For when the templates are in a separate repo.
-        image_path = os.path.abspath(os.path.join(path, "img", partner))
-
-    for root, dirs, files in os.walk(image_path):
-        for filename in files:
-            image_path = os.path.abspath(os.path.join(root, filename))
-            print(image_path)
-            contents = encode_image(image_path)
-            print(contents)
-            file_map[filename] = contents
-
-    return file_map
+        return file_map
 
 class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
