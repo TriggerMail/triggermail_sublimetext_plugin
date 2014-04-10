@@ -31,6 +31,8 @@ def get_url(settings):
 
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
+    encode_images = True
+
     def get_extra_params(self):
         return dict()
 
@@ -63,10 +65,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     format="json",
                     search_terms=json.dumps(settings.get("search_terms", [])),
                     products=json.dumps(settings.get("products")),
+                    customer_properties=json.dumps(settings.get("customer", {})),
                     recipe_rules_file=recipe_rules_file,
                     use_dev='dev.' in template_filename,
                     generation=self.generation)
-        print(params)
+        print(params.get("customer_properties"))
         try:
             cpn = settings.get("cpn")
             assert cpn
@@ -120,13 +123,12 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             # For when the templates are in a separate repo.
             image_path = os.path.abspath(os.path.join(self.path, "img", self.partner))
 
-        for root, dirs, files in os.walk(image_path):
-            for filename in files:
-                image_path = os.path.abspath(os.path.join(root, filename))
-                print(image_path)
-                contents = encode_image(image_path)
-                print(contents)
-                file_map[filename] = contents
+        if self.encode_images:
+            for root, dirs, files in os.walk(image_path):
+                for filename in files:
+                    image_path = os.path.abspath(os.path.join(root, filename))
+                    contents = encode_image(image_path)
+                    file_map[filename] = contents
 
         return file_map
 
@@ -143,6 +145,7 @@ class PreviewTemplate(_BasePreviewCommand):
         webbrowser.open("file://"+temp.name)
 
 class SendEmailPreview(_BasePreviewCommand):
+    encode_images = False
     def get_extra_params(self):
         settings = load_settings()
         return dict(email=settings.get("preview_email", ""))
@@ -156,6 +159,7 @@ class SendEmailPreview(_BasePreviewCommand):
         print(self.view.set_status("trigger_mail", "Sent an email preview"))
 
 class SendTestPreview(_BasePreviewCommand):
+    encode_images = False
     def get_extra_params(self):
         settings = load_settings()
         return dict(email=settings.get("preview_email", ""))
