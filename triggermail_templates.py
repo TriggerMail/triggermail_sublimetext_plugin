@@ -61,6 +61,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     partner=self.partner,
                     action=self.action,
                     format="json",
+                    search_terms=json.dumps(settings.get("search_terms", [])),
                     products=json.dumps(settings.get("products")),
                     recipe_rules_file=recipe_rules_file,
                     use_dev='dev.' in template_filename,
@@ -80,7 +81,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
             if hasattr(e, "read"):
-                print(e)
                 return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
             return sublime.error_message(str(e))
         return response.read()
