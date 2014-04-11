@@ -48,15 +48,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         self.dissect_filename(template_filename, settings)
 
-        # Read all the HTML files
+        # Read all the partner assets files
         file_map = self.generate_file_map()
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
-
-        recipe_rules_file = settings.get('recipe_rules_file', '')
-        if recipe_rules_file:
-            recipe_rules_file = read_file(os.path.join(self.path, recipe_rules_file))
 
         params = dict(product_count=settings.get("product_count", 3),
                     templates=json.dumps(file_map),
@@ -66,7 +62,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     search_terms=json.dumps(settings.get("search_terms", [])),
                     products=json.dumps(settings.get("products")),
                     customer_properties=json.dumps(settings.get("customer", {})),
-                    recipe_rules_file=recipe_rules_file,
                     use_dev='dev.' in template_filename,
                     generation=self.generation)
         print(params.get("customer_properties"))
@@ -107,7 +102,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_map = dict()
         for root, dirs, files in os.walk(self.path):
             for filename in files:
-                if filename.endswith(".html") or filename.endswith(".txt"):
+                if filename.endswith(".html") or filename.endswith(".txt") or filename.endswith(".yaml"):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
 
