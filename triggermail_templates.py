@@ -112,11 +112,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # packages through a sublimetext plugin.
         # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
         # as long as you are on a fast connection.
-        image_path = os.path.abspath(os.path.join(self.path, "..", "..", "..", "..", "static", "img", self.partner))
-
-        if not os.path.exists(image_path):
-            # For when the templates are in a separate repo.
-            image_path = os.path.abspath(os.path.join(self.path, "img", self.partner))
+        image_path = os.path.abspath(os.path.join(self.path, "img"))
 
         if self.encode_images:
             for root, dirs, files in os.walk(image_path):
