@@ -36,7 +36,7 @@ chmod 777 ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_s
 ```
 
 ## Using the Plugin
-There are three commands:
+Work on a template and then save it. There are three commands. You can execute any of them by pressing `command`+`shift`+`p`:
 
 1. Preview the template in the browser
 2. Send yourself a test version of the email.
