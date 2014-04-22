@@ -12,26 +12,28 @@ http://www.macdrifter.com/2012/08/install-sublime-packages-from-github.html
 
 ## Edit the settings file
 Press `Shift`+`Command`+`p` to get to the SublimeText command palette and pick `TriggerMail: open settings file`.
-Edit the configuration file to add your email address. The plugin will send email tests and previews to that:
+Edit the configuration file to add your email address. The plugin will send email-client tests and previews to that address.
+
+On some occasions, the settings file is marked as read-only, depending on your installation and your OS. On OSX, that file is in `~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin/TriggerMail.sublime-settings` and you can make it writable by typing the following command in your terminal:
+
+```
+chmod 777 ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin/TriggerMail.sublime-settings
+```
+
 
 ```
 {
     /*
-    URL of the engine
+    URL of the TriggerMail engine.
      */
     "engine": "http://www.triggermail.io/",
     "preview_email": "mahmoud@triggermail.io",
-    "product_count": 4,
-    /*
-    The name of the partner
-     */
-    "partner": "tommy_john",
-    "strategy": "AttributeRank",
-    "strategy_kwargs": "{\"attributes\": [\"brand\"]}"
+    "products": {
+        "query": "brief",
+        "max": 10
+    }
 }
 ```
-
-Both `strategy` and `strategy_kwargs` are optional parameters. These allow you to test a strategy with a template without having to assign it to the partner in production. `strategy` can be used without `strategy_kwargs` and defaults to `RelatedProducts`.
 
 ## Using the Plugin
 There are three commands:
