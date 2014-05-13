@@ -102,7 +102,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_map = dict()
         for root, dirs, files in os.walk(self.path):
             for filename in files:
-                if filename.endswith(".html") or filename.endswith(".txt") or filename.endswith(".yaml"):
+                if filename.endswith(".tracking") or filename.endswith(".html") or filename.endswith(".txt") or filename.endswith(".yaml"):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
 
