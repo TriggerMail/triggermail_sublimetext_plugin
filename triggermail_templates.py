@@ -49,7 +49,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.dissect_filename(template_filename, settings)
 
         # Read all the partner assets files
-        file_map = self.generate_file_map()
+        # file_map = self.generate_file_map()
+        file_map = {}
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
