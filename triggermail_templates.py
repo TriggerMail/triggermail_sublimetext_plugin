@@ -16,6 +16,13 @@ def read_file(filename):
     fh.close()
     return contents
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 def encode_image(filename):
     """ Base64 encodes an image so that we can embed it in the html.
     """
@@ -95,16 +102,15 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         self.generation = 0
         self.variant_id = 'default'
-        numeric = '0123456789'
         path_parts = self.action.split("_")
-        if all([part in numeric for part in path_parts[-2:]]):
+        if all([is_number(part) for part in path_parts[-2:]]):
             self.generation = path_parts[-1]
             self.variant_id = "_".join(path_parts[-3:-1])
             self.action = "_".join(path_parts[:-3])
-        elif path_parts[-1] in numeric and "variant" in path_parts:
+        elif is_number(path_parts[-1]) and "variant" in path_parts:
             self.variant_id = "_".join(path_parts[-2:])
             self.action = "_".join(path_parts[:-2])
-        elif path_parts[-1] in numeric:
+        elif is_number(path_parts[-1]):
             self.generation = path_parts[-1]
             self.action = "_".join(path_parts[:-1])
         print('generation: %s' % self.generation)
