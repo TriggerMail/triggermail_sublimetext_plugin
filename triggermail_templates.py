@@ -94,6 +94,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.path = os.path.dirname(template_filename)
         self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         self.generation = 0
+        self.variant_id = 'default'
         numeric = '0123456789'
         path_parts = self.action.split("_")
         if all([part in numeric for part in path_parts[-2:]]):
