@@ -8,6 +8,7 @@ import urllib
 import webbrowser
 
 DEFAULT_USE_CACHE_SETTING = False
+ACTIONS = ['window_shopping', 'abandoned_cart', 'abandoned_search', 'post_purchase', 'welcome']
 
 def read_file(filename):
     fh = open(filename, "r", encoding="utf-8")
@@ -68,7 +69,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     products=json.dumps(settings.get("products")),
                     customer_properties=json.dumps(settings.get("customer", {})),
                     use_dev='dev.' in template_filename,
-                    generation=self.generation)
+                    generation=self.generation,
+                    variant_id=self.variant_id)
         print(params.get("customer_properties"))
         try:
             cpn = settings.get("cpn")
@@ -92,9 +94,22 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.path = os.path.dirname(template_filename)
         self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         self.generation = 0
-        if self.action[-1] in '0123456789':
-            self.generation = self.action.split('_')[-1]
-            self.action = '_'.join(self.action.split('_')[:-1])
+        numeric = '0123456789'
+        path_parts = self.action.split("_")
+        if all([part in numeric for part in path_parts[-2:]]):
+            self.generation = path_parts[-1]
+            self.variant_id = "_".join(path_parts[-3:-1])
+            self.action = "_".join(path_parts[:-3])
+        elif path_parts[-1] in numeric and "variant" in path_parts:
+            self.variant_id = "_".join(path_parts[-2:])
+            self.action = "_".join(path_parts[:-2])
+        elif path_parts[-1] in numeric:
+            self.generation = path_parts[-1]
+            self.action = "_".join(path_parts[:-1])
+        print('generation: %s' % self.generation)
+        print('variant: %s' % self.variant_id)
+        print('action: %s' % self.action)
+
         self.partner = self.path.split(os.sep)[-1]
         # You can override the partner in the settings file
         self.partner = settings.get("partner", self.partner) or self.partner
