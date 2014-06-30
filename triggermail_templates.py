@@ -15,9 +15,9 @@ def read_file(filename):
     fh.close()
     return contents
 
-def is_number(s):
+def is_integer(s):
     try:
-        float(s)
+        int(s)
         return True
     except ValueError:
         return False
@@ -102,14 +102,14 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.generation = 0
         self.variant_id = 'default'
         path_parts = self.action.split("_")
-        if all([is_number(part) for part in path_parts[-2:]]):
+        if all([is_integer(part) for part in path_parts[-2:]]):
             self.generation = path_parts[-1]
             self.variant_id = "_".join(path_parts[-3:-1])
             self.action = "_".join(path_parts[:-3])
-        elif is_number(path_parts[-1]) and "variant" in path_parts:
+        elif is_integer(path_parts[-1]) and "variant" in path_parts:
             self.variant_id = "_".join(path_parts[-2:])
             self.action = "_".join(path_parts[:-2])
-        elif is_number(path_parts[-1]):
+        elif is_integer(path_parts[-1]):
             self.generation = path_parts[-1]
             self.action = "_".join(path_parts[:-1])
         print('generation: %s' % self.generation)
