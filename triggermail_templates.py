@@ -8,7 +8,6 @@ import urllib
 import webbrowser
 
 DEFAULT_USE_CACHE_SETTING = False
-ACTIONS = ['window_shopping', 'abandoned_cart', 'abandoned_search', 'post_purchase', 'welcome']
 
 def read_file(filename):
     fh = open(filename, "r", encoding="utf-8")
