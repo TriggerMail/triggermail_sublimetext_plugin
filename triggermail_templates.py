@@ -152,7 +152,7 @@ class PreviewTemplate(_BasePreviewCommand):
         use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
-            extra_params['file_map'] = {}
+            extra_params['file_map'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
