@@ -58,10 +58,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.dissect_filename(template_filename, settings)
 
         # Read all the partner assets files
-        if settings.get('use_cache', DEFAULT_USE_CACHE_SETTING):
-            file_map = {}
-        else:
-            file_map = self.generate_file_map()
+        file_map = self.generate_file_map()
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
@@ -153,7 +150,10 @@ class PreviewTemplate(_BasePreviewCommand):
     def get_extra_params(self):
         settings = load_settings()
         use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        return dict(unique_user=os.environ['USER'] if use_cache else '')
+        extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
+        if use_cache:
+            extra_params['file_map'] = json.dumps({})
+        return extra_params
 
     def run(self, edit):
         settings = load_settings()
