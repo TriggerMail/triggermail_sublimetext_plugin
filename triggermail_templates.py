@@ -7,7 +7,7 @@ import tempfile
 import urllib
 import webbrowser
 
-DEFAULT_USE_CACHE_SETTING = False
+DEFAULT_USE_CACHE_SETTING = True
 
 def read_file(filename):
     fh = open(filename, "r", encoding="utf-8")
@@ -74,7 +74,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     use_dev='dev.' in template_filename,
                     generation=self.generation,
                     variant_id=self.variant_id)
-        print(params.get("customer_properties"))
         try:
             cpn = settings.get("cpn")
             assert cpn
@@ -82,15 +81,13 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         except:
             pass
         params.update(self.get_extra_params())
-
+        print(params)
         # request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             # response = urllib2.urlopen(request)
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
-            if hasattr(e, "read"):
-                return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
-            return sublime.error_message(str(e))
+            return str.encode(str(json.loads(e.read().decode("utf-8")).get("message")))
         return response.read()
 
     def dissect_filename(self, template_filename, settings):
@@ -170,7 +167,8 @@ class SendEmailPreview(_BasePreviewCommand):
     encode_images = False
     def get_extra_params(self):
         settings = load_settings()
-        return dict(email=settings.get("preview_email", ""))
+        use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        return dict(email=settings.get("preview_email", ""), unique_user=os.environ['USER'] if use_cache else '')
 
     def run(self, edit):
         settings = load_settings()
@@ -216,8 +214,9 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
         try:
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
+            print(e)
             if hasattr(e, "read"):
-                return sublime.error_message(json.loads(e.read().decode("utf-8")).get("message"))
+                return sublime.error_message(str(json.loads(e.read().decode("utf-8")).get("message")))
             return sublime.error_message(str(e))
         return sublime.message_dialog('YAYYY Valid!')
 
