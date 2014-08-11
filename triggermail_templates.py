@@ -134,12 +134,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # as long as you are on a fast connection.
         image_path = os.path.abspath(os.path.join(self.path, "img"))
 
-        if self.encode_images:
-            for root, dirs, files in os.walk(image_path):
-                for filename in files:
-                    image_path = os.path.abspath(os.path.join(root, filename))
-                    contents = encode_image(image_path)
-                    file_map[filename] = contents
+        for root, dirs, files in os.walk(image_path):
+            for filename in files:
+                image_path = os.path.abspath(os.path.join(root, filename))
+                contents = encode_image(image_path)
+                file_map[filename] = contents
 
         return file_map
 
@@ -155,7 +154,7 @@ class PreviewTemplate(_BasePreviewCommand):
     def run(self, edit):
         settings = load_settings()
         self.url = get_url(settings)
-        self.url += "api/templates/render_raw_template"
+        self.url += "api/templates/render_plugin_template"
 
         response = super(PreviewTemplate, self).run(edit)
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
@@ -164,7 +163,6 @@ class PreviewTemplate(_BasePreviewCommand):
         webbrowser.open("file://"+temp.name)
 
 class SendEmailPreview(_BasePreviewCommand):
-    encode_images = False
     def get_extra_params(self):
         settings = load_settings()
         use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
@@ -173,13 +171,12 @@ class SendEmailPreview(_BasePreviewCommand):
     def run(self, edit):
         settings = load_settings()
         self.url = get_url(settings)
-        self.url += "api/templates/render_to_email"
+        self.url += "api/templates/to_email_plugin_template"
 
         super(SendEmailPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent an email preview"))
 
 class SendTestPreview(_BasePreviewCommand):
-    encode_images = False
     def get_extra_params(self):
         settings = load_settings()
         return dict(email=settings.get("preview_email", ""))
