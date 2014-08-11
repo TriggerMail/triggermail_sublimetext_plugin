@@ -134,7 +134,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # as long as you are on a fast connection.
         image_path = os.path.abspath(os.path.join(self.path, "img"))
 
-        # if self.encode_images:
         for root, dirs, files in os.walk(image_path):
             for filename in files:
                 image_path = os.path.abspath(os.path.join(root, filename))
