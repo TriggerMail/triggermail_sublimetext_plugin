@@ -141,7 +141,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                 contents = encode_image(image_path)
                 file_map[filename] = contents
 
-        print(file_map.keys())
         return file_map
 
 class PreviewTemplate(_BasePreviewCommand):
