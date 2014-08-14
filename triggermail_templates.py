@@ -218,4 +218,36 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
         return sublime.message_dialog('YAYYY Valid!')
 
 
+class KeenFunnels(sublime_plugin.TextCommand):
+    def run(self, edit):
+        settings = load_settings()
+        self.url = get_url(settings)
+        self.url += "api/customers/run_funnel"
 
+        content = self.view.substr(sublime.Region(0, self.view.size()))
+        params = dict(payload=content)
+        try:
+            response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
+        except urllib.error.URLError as e:
+            print(e)
+            if hasattr(e, "read"):
+                return sublime.error_message(str(json.loads(e.read().decode("utf-8")).get("message")))
+            return sublime.error_message(str(e))
+        content = response.read().decode("utf-8")
+        print(content)
+        view = make_new_view(self.view.window(), content, scratch=True)
+        view.set_syntax_file("Packages/YAML/YAML.tmLanguage")
+
+def make_new_view(window, text, scratch=False):
+    """ create a new view and paste text content
+        return the new view.
+        Optionally can be set as scratch.
+    """
+
+    new_view = window.new_file()
+    if scratch:
+        new_view.set_scratch(True)
+    new_view.run_command('append', {
+            'characters': text,
+        })
+    return new_view

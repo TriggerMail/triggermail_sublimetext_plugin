@@ -7,6 +7,10 @@
   "command": "send_email_preview"
 },
 {
+  "caption": "Keen: evaluate funnel",
+  "command": "keen_funnels"
+},
+{
   "caption": "TriggerMail: test on email clients",
   "command": "send_test_preview"
 },
