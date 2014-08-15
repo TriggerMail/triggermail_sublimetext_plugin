@@ -81,7 +81,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         except:
             pass
         params.update(self.get_extra_params())
-        print(params)
+        # print(params)
         # request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             # response = urllib2.urlopen(request)
@@ -161,6 +161,24 @@ class PreviewTemplate(_BasePreviewCommand):
         temp.write(response)
         temp.close()
         webbrowser.open("file://"+temp.name)
+
+class PreviewTemplateChannel(_BasePreviewCommand):
+    def get_extra_params(self):
+        settings = load_settings()
+        use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
+        if use_cache:
+            extra_params['file_map'] = json.dumps({})
+        return extra_params
+
+    def run(self, edit):
+        settings = load_settings()
+        self.url = get_url(settings)
+        self.url += "plugin/start"
+
+        response = super(PreviewTemplateChannel, self).run(edit)
+        print(response)
+        webbrowser.open(response.decode('utf-8'))
 
 class SendEmailPreview(_BasePreviewCommand):
     def get_extra_params(self):
