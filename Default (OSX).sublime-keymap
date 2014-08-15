@@ -1,6 +1,6 @@
 [
     {
-        "keys": ["super+ctrl+t"], "command": "preview_template"
+        "keys": ["super+ctrl+t"], "command": "preview_template_channel"
     }
 ]
 

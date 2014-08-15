@@ -11,6 +11,10 @@
   "command": "send_test_preview"
 },
 {
+  "caption": "TriggerMail: preview email on channel",
+  "command": "preview_template_channel"
+},
+{
     "caption": "TriggerMail: Open settings file",
     "command": "open_file", "args":
     {

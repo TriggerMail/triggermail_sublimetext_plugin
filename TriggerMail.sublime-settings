@@ -2,8 +2,10 @@
     /*
     URL of the engine
      */
-    "engine": "http://www.triggermail.io/",
-    "preview_email": "mahmoud@triggermail.io",
+    "engine": "http://plugin-channel.triggeredmail.appspot.com/",
+    // "engine": "http://www.triggermail.io/",
+    // "engine": "http://localhost:8080/",
+    "preview_email": "andrew@triggermail.io",
     "product_count": 5,
     /* Local path of a Recipe Rules file. */
     "recipe_rules_file": "window_shopping.yaml",
