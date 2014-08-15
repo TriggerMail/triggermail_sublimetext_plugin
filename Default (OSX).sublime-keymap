@@ -1,6 +1,6 @@
 [
     {
-        "keys": ["super+ctrl+t"], "command": "preview_template_channel"
+        "keys": ["super+ctrl+t"], "command": "preview_template_channel",
         "keys": ["super+ctrl+v"], "command": "validate_recipe_rules_file"
     }
 ]
