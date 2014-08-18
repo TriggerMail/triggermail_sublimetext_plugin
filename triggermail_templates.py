@@ -91,10 +91,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         return response.read()
 
     def dissect_filename(self, template_filename, settings):
+        # Todo: Change to an API call. We do this better in the engine.
         self.path = os.path.dirname(template_filename)
         self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
         self.generation = 0
-        self.variant_id = 'default'
+        self.variant_id = ''
         path_parts = self.action.split("_")
         if all([is_integer(part) for part in path_parts[-2:]]):
             self.generation = path_parts[-1]
