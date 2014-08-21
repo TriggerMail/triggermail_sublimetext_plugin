@@ -41,12 +41,18 @@ def get_url(settings):
 class _BasePreviewCommand(sublime_plugin.TextCommand):
     url = None
     encode_images = True
+    COMMAND_URL = ''
+
+    def __init__(self, *args, **kwargs):
+        self.settings = load_settings()
+        super(_BasePreviewCommand, self).__init__(*args, **kwargs)
 
     def get_extra_params(self):
         return dict()
 
     def run(self, edit):
-        settings = load_settings()
+        self.url = get_url(self.settings) + self.COMMAND_URL
+
         template_filename = self.view.file_name()
         if not template_filename:
             return sublime.error_message("You have to provide a template path.")
@@ -55,7 +61,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         if not os.path.exists(template_filename):
             return sublime.error_message("File does not exist")
 
-        self.dissect_filename(template_filename, settings)
+        self.dissect_filename(template_filename)
 
         # Read all the partner assets files
         file_map = self.generate_file_map()
@@ -63,19 +69,20 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
 
-        params = dict(product_count=settings.get("product_count", 3),
+        params = dict(product_count=self.settings.get("product_count", 3),
                     templates=json.dumps(file_map),
                     partner=self.partner,
                     action=self.action,
                     format="json",
-                    search_terms=json.dumps(settings.get("search_terms", [])),
-                    products=json.dumps(settings.get("products")),
-                    customer_properties=json.dumps(settings.get("customer", {})),
+                    search_terms=json.dumps(self.settings.get("search_terms", [])),
+                    products=json.dumps(self.settings.get("products")),
+                    customer_properties=json.dumps(self.settings.get("customer", {})),
                     use_dev='dev.' in template_filename,
                     generation=self.generation,
-                    variant_id=self.variant_id)
+                    variant_id=self.variant_id,
+                    subaction=self.subaction)
         try:
-            cpn = settings.get("cpn")
+            cpn = self.settings.get("cpn")
             assert cpn
             params["cpn"] = cpn
         except:
@@ -90,30 +97,22 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             return str.encode(str(json.loads(e.read().decode("utf-8")).get("message")))
         return response.read()
 
-    def dissect_filename(self, template_filename, settings):
-        # Todo: Change to an API call. We do this better in the engine.
+    def dissect_filename(self, template_filename):
         self.path = os.path.dirname(template_filename)
-        self.action = template_filename.replace(self.path, "").replace(".html", "").replace('dev.', '').strip(os.sep)
-        self.generation = 0
-        self.variant_id = ''
-        path_parts = self.action.split("_")
-        if all([is_integer(part) for part in path_parts[-2:]]):
-            self.generation = path_parts[-1]
-            self.variant_id = "_".join(path_parts[-3:-1])
-            self.action = "_".join(path_parts[:-3])
-        elif is_integer(path_parts[-1]) and "variant" in path_parts:
-            self.variant_id = "_".join(path_parts[-2:])
-            self.action = "_".join(path_parts[:-2])
-        elif is_integer(path_parts[-1]):
-            self.generation = path_parts[-1]
-            self.action = "_".join(path_parts[:-1])
-        print('generation: %s' % self.generation)
-        print('variant: %s' % self.variant_id)
-        print('action: %s' % self.action)
+        template_filename = template_filename.replace(self.path, '')
+
+        url = get_url(self.settings) + "api/templates/dissect_filename"
+        params = dict(template_filename=template_filename)
+        response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
+        result = response.read().decode('ascii')
+        print(result)
+        result = json.loads(result)
+        for key, value in result.items():
+            setattr(self, key, value)
 
         self.partner = self.path.split(os.sep)[-1]
         # You can override the partner in the settings file
-        self.partner = settings.get("partner", self.partner) or self.partner
+        self.partner = self.settings.get("partner", self.partner) or self.partner
         self.partner = self.partner.replace("_templates", "")
 
     def generate_file_map(self):
@@ -123,7 +122,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_map = dict()
         for root, dirs, files in os.walk(self.path):
             for filename in files:
-                if filename.endswith(".tracking") or filename.endswith(".html") or filename.endswith(".txt") or filename.endswith(".yaml"):
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
 
@@ -144,19 +143,16 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         return file_map
 
 class PreviewTemplate(_BasePreviewCommand):
+    COMMAND_URL = "api/templates/render_plugin_template"
+
     def get_extra_params(self):
-        settings = load_settings()
-        use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
             extra_params['file_map'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
-        settings = load_settings()
-        self.url = get_url(settings)
-        self.url += "api/templates/render_plugin_template"
-
         response = super(PreviewTemplate, self).run(edit)
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
         temp.write(response)
@@ -164,47 +160,38 @@ class PreviewTemplate(_BasePreviewCommand):
         webbrowser.open("file://"+temp.name)
 
 class PreviewTemplateChannel(_BasePreviewCommand):
+    COMMAND_URL = "plugin/start"
+
     def get_extra_params(self):
-        settings = load_settings()
-        use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
             extra_params['file_map'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
-        settings = load_settings()
-        self.url = get_url(settings)
-        self.url += "plugin/start"
-
         response = super(PreviewTemplateChannel, self).run(edit)
         print(response)
         webbrowser.open(response.decode('utf-8'))
 
 class SendEmailPreview(_BasePreviewCommand):
+    COMMAND_URL = "api/templates/to_email_plugin_template"
+
     def get_extra_params(self):
-        settings = load_settings()
-        use_cache = settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        return dict(email=settings.get("preview_email", ""), unique_user=os.environ['USER'] if use_cache else '')
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        return dict(email=self.settings.get("preview_email", ""), unique_user=os.environ['USER'] if use_cache else '')
 
     def run(self, edit):
-        settings = load_settings()
-        self.url = get_url(settings)
-        self.url += "api/templates/to_email_plugin_template"
-
         super(SendEmailPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent an email preview"))
 
 class SendTestPreview(_BasePreviewCommand):
+    COMMAND_URL = "api/templates/render_client_tests"
+
     def get_extra_params(self):
-        settings = load_settings()
-        return dict(email=settings.get("preview_email", ""))
+        return dict(email=self.settings.get("preview_email", ""))
 
     def run(self, edit):
-        settings = load_settings()
-        self.url = get_url(settings)
-        self.url += "api/templates/render_client_tests"
-
         super(SendTestPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent client test previews"))
 
@@ -240,8 +227,7 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
 class KeenFunnels(sublime_plugin.TextCommand):
     def run(self, edit):
         settings = load_settings()
-        self.url = get_url(settings)
-        self.url += "api/customers/run_funnel"
+        self.url = get_url(settings) + "api/customers/run_funnel"
 
         content = self.view.substr(sublime.Region(0, self.view.size()))
         params = dict(payload=content)
