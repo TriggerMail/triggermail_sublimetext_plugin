@@ -64,13 +64,12 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         self.dissect_filename(template_filename)
 
         # Read all the partner assets files
-        file_map = self.generate_file_map()
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
 
         params = dict(product_count=self.settings.get("product_count", 3),
-                    templates=json.dumps(file_map),
                     partner=self.partner,
                     action=self.action,
                     format="json",
@@ -81,6 +80,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     generation=self.generation,
                     variant_id=self.variant_id,
                     subaction=self.subaction)
+        if not use_cache:
+            params["templates"] = self.generate_file_map()
         try:
             cpn = self.settings.get("cpn")
             assert cpn
@@ -88,7 +89,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         except:
             pass
         params.update(self.get_extra_params())
-        # print(params)
+        print(params)
         # request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             # response = urllib2.urlopen(request)
@@ -105,7 +106,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         params = dict(template_filename=template_filename)
         response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
         result = response.read().decode('ascii')
-        print(result)
         result = json.loads(result)
         for key, value in result.items():
             setattr(self, key, value)
@@ -148,8 +148,6 @@ class PreviewTemplate(_BasePreviewCommand):
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
-        if use_cache:
-            extra_params['file_map'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
