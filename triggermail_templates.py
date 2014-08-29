@@ -81,7 +81,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     variant_id=self.variant_id,
                     subaction=self.subaction)
         if not use_cache:
-            params["templates"] = self.generate_file_map()
+            params["templates"] = json.dumps(self.generate_file_map())
         try:
             cpn = self.settings.get("cpn")
             assert cpn
@@ -106,6 +106,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         params = dict(template_filename=template_filename)
         response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
         result = response.read().decode('ascii')
+        print(result)
         result = json.loads(result)
         for key, value in result.items():
             setattr(self, key, value)
