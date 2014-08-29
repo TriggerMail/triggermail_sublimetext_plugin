@@ -1,6 +1,6 @@
 [
     {
-        "keys": ["super+ctrl+o"], "command": "render_plugin_template"
+        "keys": ["super+ctrl+r"], "command": "preview_template"
     },
     {
         "keys": ["super+ctrl+v"], "command": "validate_recipe_rules_file"
