@@ -63,7 +63,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         self.dissect_filename(template_filename)
 
-        # Read all the partner assets files
         # get file names
         file_names = json.dumps(self.generate_file_list())
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
