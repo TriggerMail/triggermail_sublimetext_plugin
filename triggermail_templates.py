@@ -63,7 +63,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         self.dissect_filename(template_filename)
 
-        # Read all the partner assets files
+        # get file names
+        file_names = json.dumps(self.generate_file_list())
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
@@ -79,7 +80,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     use_dev='dev.' in template_filename,
                     generation=self.generation,
                     variant_id=self.variant_id,
-                    subaction=self.subaction)
+                    subaction=self.subaction,
+                    file_names=file_names)
         if not use_cache:
             params["templates"] = json.dumps(self.generate_file_map())
         try:
@@ -143,12 +145,29 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         return file_map
 
+    def generate_file_list(self):
+        file_names = []
+        for root, dirs, files in os.walk(self.path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
+                    file_names.append(filename)
+
+        image_path = os.path.abspath(os.path.join(self.path, "img"))
+
+        for root, dirs, files in os.walk(image_path):
+            for filename in files:
+                image_path = os.path.abspath(os.path.join(root, filename))
+                file_names.append(filename)
+        return file_names
+
 class PreviewTemplate(_BasePreviewCommand):
     COMMAND_URL = "api/templates/render_plugin_template"
 
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
+        if use_cache:
+            extra_params['templates'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
@@ -165,7 +184,7 @@ class PreviewTemplateChannel(_BasePreviewCommand):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
-            extra_params['file_map'] = json.dumps({})
+            extra_params['templates'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
