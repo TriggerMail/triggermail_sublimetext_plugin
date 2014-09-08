@@ -65,6 +65,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         # Read all the partner assets files
         file_map = self.generate_file_map()
+        file_names = json.dumps(list(file_map.keys()))
 
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
@@ -80,7 +81,8 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     use_dev='dev.' in template_filename,
                     generation=self.generation,
                     variant_id=self.variant_id,
-                    subaction=self.subaction)
+                    subaction=self.subaction,
+                    file_names=file_names)
         try:
             cpn = self.settings.get("cpn")
             assert cpn
@@ -88,7 +90,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         except:
             pass
         params.update(self.get_extra_params())
-        # print(params)
+        print(json.loads(params['templates']).keys())
         # request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             # response = urllib2.urlopen(request)
@@ -149,7 +151,7 @@ class PreviewTemplate(_BasePreviewCommand):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
-            extra_params['file_map'] = json.dumps({})
+            extra_params['templates'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
@@ -166,7 +168,7 @@ class PreviewTemplateChannel(_BasePreviewCommand):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
         if use_cache:
-            extra_params['file_map'] = json.dumps({})
+            extra_params['templates'] = json.dumps({})
         return extra_params
 
     def run(self, edit):
