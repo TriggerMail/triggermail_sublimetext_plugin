@@ -197,7 +197,10 @@ class SendEmailPreview(_BasePreviewCommand):
 
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        return dict(email=self.settings.get("preview_email", ""), unique_user=os.environ['USER'] if use_cache else '')
+        extra_params = dict(email=self.settings.get("preview_email", ""), unique_user=os.environ['USER'] if use_cache else '')
+        if use_cache:
+            extra_params['templates'] = json.dumps({})
+        return extra_params
 
     def run(self, edit):
         super(SendEmailPreview, self).run(edit)
