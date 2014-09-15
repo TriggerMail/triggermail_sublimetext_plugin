@@ -216,11 +216,11 @@ class SendTestPreview(_BasePreviewCommand):
         super(SendTestPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent client test previews"))
 
-class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
+class ValidateYumli(sublime_plugin.TextCommand):
     def run(self, edit):
         settings = load_settings()
         self.url = get_url(settings)
-        self.url += "api/templates/validate_recipe_rules_file"
+        self.url += "api/yumli/validate_yumli"
 
         recipe_rules_file = self.view.file_name()
         if not recipe_rules_file:
@@ -232,7 +232,8 @@ class ValidateRecipeRulesFile(sublime_plugin.TextCommand):
 
         # send the contents of the file
         params = dict(
-            recipe_rules_file=read_file(recipe_rules_file),
+            yumli_file=read_file(recipe_rules_file),
+            file_name=recipe_rules_file
         )
 
         try:
