@@ -237,11 +237,16 @@ class ValidateYumli(sublime_plugin.TextCommand):
         )
 
         try:
-            response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
+            urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
-            print(e)
+            error = e.read().decode("utf-8")
+            print(error)
             if hasattr(e, "read"):
-                return sublime.error_message(str(json.loads(e.read().decode("utf-8")).get("message")))
+                try:
+                    return sublime.error_message(str(json.loads(error).get("text")))
+                except:
+                    pass
+                return sublime.error_message("x")
             return sublime.error_message(str(e))
         return sublime.message_dialog('YAYYY Valid!')
 
