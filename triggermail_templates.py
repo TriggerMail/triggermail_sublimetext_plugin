@@ -77,6 +77,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     search_terms=json.dumps(self.settings.get("search_terms", [])),
                     products=json.dumps(self.settings.get("products")),
                     customer_properties=json.dumps(self.settings.get("customer", {})),
+                    canned_products=json.dumps(self.settings.get("canned_products", {})),
                     use_dev='dev.' in template_filename,
                     generation=self.generation,
                     variant_id=self.variant_id,
