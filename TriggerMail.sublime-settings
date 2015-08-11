@@ -2,8 +2,7 @@
     /*
     URL of the engine
      */
-    // "engine": "http://www.triggermail.io/",
-    "engine": "http://marram.triggeredmail.appspot.com/",
+    "engine": "http://www.triggermail.io/",
     "preview_email": "mahmoud.arram@gmail.com",
     "product_count": 5,
     "use_cache": true,
