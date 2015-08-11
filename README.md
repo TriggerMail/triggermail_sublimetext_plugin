@@ -20,8 +20,12 @@ On some occasions, the settings file is marked as read-only, depending on your i
 chmod 777 ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin/TriggerMail.sublime-settings
 ```
 
+Sometimes that file won't save properly, which can be because the triggermail_sublimetext_plugin directory isn't created, you can create it with
 
 ```
+mkdir ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin
+```
+
 {
     /*
     URL of the TriggerMail engine.
