@@ -7,6 +7,9 @@
     },
     {
         "keys": ["super+ctrl+t"], "command": "preview_template_channel"
+    },
+    {
+        "keys": ["super+ctrl+y"], "command": "preview_ad_creative"
     }
 ]
 

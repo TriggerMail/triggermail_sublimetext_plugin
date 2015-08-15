@@ -8,6 +8,8 @@ import urllib
 import webbrowser
 
 DEFAULT_USE_CACHE_SETTING = True
+DEFAULT_AD_ACTION = 'window_shopping_ads'
+DEFAULT_AD_CREATIVE_NAME = 'behavioral_ads'
 
 def read_file(filename):
     fh = open(filename, "r", encoding="utf-8")
@@ -99,7 +101,10 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             # response = urllib2.urlopen(request)
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
-            return str.encode(str(json.loads(e.read().decode("utf-8")).get("message")))
+            print(e)
+            return str(e)
+            # return str.encode(str(json.loads(e.read().decode("utf-8")).get("message")))
+
         return response.read()
 
     def dissect_filename(self, template_filename):
@@ -165,6 +170,25 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 class PreviewTemplate(_BasePreviewCommand):
     COMMAND_URL = "api/templates/render_plugin_template"
 
+    def dissect_filename(self, template_filename):
+        self.path = os.path.dirname(template_filename)
+        self.path = os.path.abspath(os.path.join(self.path, os.pardir))
+        template_filename = template_filename.replace(self.path, '')
+
+        url = get_url(self.settings) + "api/templates/dissect_filename"
+        params = dict(template_filename=template_filename)
+        response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
+        result = response.read().decode('ascii')
+        print(result)
+        result = json.loads(result)
+        for key, value in result.items():
+            setattr(self, key, value)
+
+        self.partner = self.path.split(os.sep)[-1]
+        # You can override the partner in the settings file
+        self.partner = self.settings.get("partner", self.partner) or self.partner
+        self.partner = self.partner.replace("_templates", "")
+
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
@@ -178,6 +202,30 @@ class PreviewTemplate(_BasePreviewCommand):
         temp.write(response)
         temp.close()
         webbrowser.open("file://"+temp.name)
+
+class PreviewAdCreative(PreviewTemplate):
+
+    COMMAND_URL = "api/templates/render_ad_creative"
+
+    def get_extra_params(self):
+        extra_params = super(PreviewAdCreative, self).get_extra_params()
+        size, creative_name = self.parse_file_name()
+        action = self.settings.get('ads_action', DEFAULT_AD_ACTION)
+        extra_params.update(dict(size=size, creative_name=creative_name, action=action))
+        return extra_params
+
+    def parse_file_name(self):
+        # TODO: We need a more elegant way of doing this. Perhaps with regex
+        template_filename = self.view.file_name()
+        parts = template_filename.split('/')[-1]
+        parts = parts.split('.')[0].split('_')
+        if len(parts) < 3:
+            message = "Error: You need a file size suffix in your file name"
+            print(message)
+            return sublime.error_message(message)
+        size = '_'.join(parts[-2:])
+        creative_name = self.settings.get('ads_creative_name', DEFAULT_AD_CREATIVE_NAME)
+        return size, creative_name
 
 class PreviewTemplateChannel(_BasePreviewCommand):
     COMMAND_URL = "plugin/start"

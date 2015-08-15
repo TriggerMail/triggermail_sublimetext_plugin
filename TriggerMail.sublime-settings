@@ -2,18 +2,30 @@
     /*
     URL of the engine
      */
-    "engine": "http://www.triggermail.io/",
-    "preview_email": "mahmoud.arram@gmail.com",
+    // "engine": "http://www.triggermail.io/",
+    "engine": "http://andrew.triggeredmail.appspot.com/",
+    // "engine": "http://localhost:8080/",
+    "preview_email": "andrew@triggermail.io",
     "product_count": 5,
-    "use_cache": true,
     /* Local path of a Recipe Rules file. */
-    "recipe_rules_file": "window_shopping.yaml",
+    // "recipe_rules_file": "window_shopping.yaml",
     "products": {
-        "query": "id:MF502LL/A",
-        "max": 1
+        "query": "",
+        // "query": "bern AND out_of_stock:\"False\"",
+        // "query": "gender:mens AND primary_sport:basketball AND category:footwear",
+        "max": 3
+    },
+    "customer": {
+        "has_purchased": true
     },
     /*
     The name of the partner
      */
-    "partner": ""
+    "use_cache": false,
+    "partner": "tommy_hilfiger",
+    /*
+    Ads-specific settings
+    */
+    "ads_action": "window_shopping_ads",
+    "ads_creative_name": "behavioral_ads"
 }
