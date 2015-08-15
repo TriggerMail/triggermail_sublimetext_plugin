@@ -132,7 +132,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_map = dict()
         for root, dirs, files in os.walk(self.path):
             for filename in files:
-                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
 
