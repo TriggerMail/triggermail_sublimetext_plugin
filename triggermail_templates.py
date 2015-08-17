@@ -179,7 +179,7 @@ class PreviewTemplate(_BasePreviewCommand):
         params = dict(template_filename=template_filename)
         response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
         result = response.read().decode('ascii')
-        # print(result)
+        print(result)
         result = json.loads(result)
         for key, value in result.items():
             setattr(self, key, value)
