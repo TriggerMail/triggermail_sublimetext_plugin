@@ -95,7 +95,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         except:
             pass
         params.update(self.get_extra_params())
-        print(params)
+        # print(params)
         # request = urllib2.Request(self.url, urllib.urlencode(params))
         try:
             # response = urllib2.urlopen(request)
@@ -209,23 +209,26 @@ class PreviewAdCreative(PreviewTemplate):
 
     def get_extra_params(self):
         extra_params = super(PreviewAdCreative, self).get_extra_params()
-        size, creative_name = self.parse_file_name()
+        d = self.parse_file_name()
+        extra_params.update(d)
         action = self.settings.get('ads_action', DEFAULT_AD_ACTION)
-        extra_params.update(dict(size=size, creative_name=creative_name, action=action))
+        extra_params.update(dict(action=action))
         return extra_params
 
     def parse_file_name(self):
         # TODO: We need a more elegant way of doing this. Perhaps with regex
         template_filename = self.view.file_name()
-        parts = template_filename.split('/')[-1]
+        parts = template_filename.split('/')
+        partner_name = parts[-3]
+        parts = parts[-1]
         parts = parts.split('.')[0].split('_')
         if len(parts) < 3:
             message = "Error: You need a file size suffix in your file name"
             print(message)
             return sublime.error_message(message)
         size = '_'.join(parts[-2:])
-        creative_name = self.settings.get('ads_creative_name', DEFAULT_AD_CREATIVE_NAME)
-        return size, creative_name
+        creative_name = '_'.join(parts[:-2])
+        return dict(size=size, creative_name=creative_name, partner=partner_name)
 
 class PreviewTemplateChannel(_BasePreviewCommand):
     COMMAND_URL = "plugin/start"
