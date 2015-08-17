@@ -207,6 +207,52 @@ class PreviewAdCreative(PreviewTemplate):
 
     COMMAND_URL = "api/templates/render_ad_creative"
 
+    CREATIVE_LOADER = """
+    <script language="Javascript1.1" type="text/javascript">
+    function __write_preview(){
+        // div = document.createElement("div"),
+        div = document.getElementById("anchor"),
+        frame = document.createElement('iframe');
+        html = '__ad_creative_content_token__';
+        // frame.src = 'data:text/html;charset=utf-8,' + html;
+        div.id = 'testBcDiv';
+        frame.id = 'testBcFrame';
+        frame.width = __ad_creative_width_token__;
+        frame.height = __ad_creative_height_token__;
+        frame.frameBorder = 0;
+        frame.scrolling = "no";
+        frame.setAttribute('margin', '0');
+        frame.setAttribute('allowTransparency', 'true');
+        frame.setAttribute('allowTransparency', 'true');
+        frame.setAttribute('webkitallowfullscreen','');
+        frame.setAttribute('mozallowfullscreen','');
+        frame.setAttribute('allowfullscreen','');
+        // frame.setAttribute('style','background: #0066FF;');
+        div.appendChild(frame);
+        frame.contentWindow.document.open();
+        frame.contentWindow.document.write(html);
+        frame.contentWindow.document.close();
+        // document.appendChild(div);
+        /*
+        if(!div.outerHTML) {
+          iDiv = document.createElement('div');
+          iDiv.appendChild(div);
+          document.write(iDiv.innerHTML);
+        } else {
+          document.write(div.outerHTML);
+        }
+        */
+    }
+    var readyStateCheckInterval = setInterval(function() {
+        if (document.readyState === "complete") {
+            clearInterval(readyStateCheckInterval);
+            __write_preview();
+        }
+    }, 10);
+    </script>
+    <html><div id="anchor"></html>
+    """
+
     def get_extra_params(self):
         extra_params = super(PreviewAdCreative, self).get_extra_params()
         d = self.parse_file_name()
@@ -227,8 +273,27 @@ class PreviewAdCreative(PreviewTemplate):
             print(message)
             return sublime.error_message(message)
         size = '_'.join(parts[-2:])
+        self.height = parts[-1]
+        self.width = parts[-2]
         creative_name = '_'.join(parts[:-2])
         return dict(size=size, creative_name=creative_name, partner=partner_name)
+
+    def run(self, edit):
+        response = super(PreviewTemplate, self).run(edit)
+        print(response)
+        response = response.decode('utf-8')
+        response = response.replace("'", "\\'")
+        response = response.replace('"', '\\"')
+        response = response.replace('\n', '')
+        response = response.replace('</script>', '<\/script>')
+        loader_script = self.CREATIVE_LOADER.replace('__ad_creative_content_token__', response)
+        loader_script = loader_script.replace('__ad_creative_width_token__', self.width)
+        loader_script = loader_script.replace('__ad_creative_height_token__', self.height)
+        loader_script = loader_script.encode('utf-8')
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        temp.write(loader_script)
+        temp.close()
+        webbrowser.open("file://"+temp.name)
 
 class PreviewTemplateChannel(_BasePreviewCommand):
     COMMAND_URL = "plugin/start"
