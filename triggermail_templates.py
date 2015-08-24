@@ -170,25 +170,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 class PreviewTemplate(_BasePreviewCommand):
     COMMAND_URL = "api/templates/render_plugin_template"
 
-    def dissect_filename(self, template_filename):
-        self.path = os.path.dirname(template_filename)
-        self.path = os.path.abspath(os.path.join(self.path, os.pardir))
-        template_filename = template_filename.replace(self.path, '')
-
-        url = get_url(self.settings) + "api/templates/dissect_filename"
-        params = dict(template_filename=template_filename)
-        response = urlopen(url, urllib.parse.urlencode(params).encode('utf-8'))
-        result = response.read().decode('ascii')
-        print(result)
-        result = json.loads(result)
-        for key, value in result.items():
-            setattr(self, key, value)
-
-        self.partner = self.path.split(os.sep)[-1]
-        # You can override the partner in the settings file
-        self.partner = self.settings.get("partner", self.partner) or self.partner
-        self.partner = self.partner.replace("_templates", "")
-
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
@@ -276,6 +257,7 @@ class PreviewAdCreative(PreviewTemplate):
         self.height = parts[-1]
         self.width = parts[-2]
         creative_name = '_'.join(parts[:-2])
+        print(partner_name)
         return dict(size=size, creative_name=creative_name, partner=partner_name)
 
     def run(self, edit):
