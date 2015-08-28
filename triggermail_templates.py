@@ -109,6 +109,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
     def dissect_filename(self, template_filename):
         self.path = os.path.dirname(template_filename)
+        self.image_path = os.path.abspath(os.path.join(self.path, "img"))
         template_filename = template_filename.replace(self.path, '')
 
         url = get_url(self.settings) + "api/templates/dissect_filename"
@@ -142,9 +143,9 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # packages through a sublimetext plugin.
         # But we might have to figure this out if it becomes a performance bottleneck. I think it is ok
         # as long as you are on a fast connection.
-        image_path = os.path.abspath(os.path.join(self.path, "img"))
+        # image_path = os.path.abspath(os.path.join(self.path, "img"))
 
-        for root, dirs, files in os.walk(image_path):
+        for root, dirs, files in os.walk(self.image_path):
             for filename in files:
                 image_path = os.path.abspath(os.path.join(root, filename))
                 contents = encode_image(image_path)
@@ -159,11 +160,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                 if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
                     file_names.append(filename)
 
-        image_path = os.path.abspath(os.path.join(self.path, "img"))
+        # self.image_path = os.path.abspath(os.path.join(self.path, "img"))
 
-        for root, dirs, files in os.walk(image_path):
+        for root, dirs, files in os.walk(self.image_path):
             for filename in files:
-                image_path = os.path.abspath(os.path.join(root, filename))
+                # image_path = os.path.abspath(os.path.join(root, filename))
                 file_names.append(filename)
         return file_names
 
@@ -234,6 +235,14 @@ class PreviewAdCreative(PreviewTemplate):
     <html><div id="anchor"></html>
     """
 
+    def dissect_filename(self, template_filename):
+        response = super(PreviewAdCreative, self).dissect_filename(template_filename)
+        path = os.path.abspath(os.path.join(template_filename, os.pardir))
+        path = os.path.abspath(os.path.join(path, os.pardir))
+        self.image_path = os.path.abspath(os.path.join(path, "img"))
+        # print(self.image_path)
+        return response
+
     def get_extra_params(self):
         extra_params = super(PreviewAdCreative, self).get_extra_params()
         d = self.parse_file_name()
@@ -261,19 +270,22 @@ class PreviewAdCreative(PreviewTemplate):
         return dict(size=size, creative_name=creative_name, partner=partner_name)
 
     def run(self, edit):
+        ads_debug = self.settings.get('ads_debug', True)
         response = super(PreviewTemplate, self).run(edit)
-        print(response)
-        response = response.decode('utf-8')
-        response = response.replace("'", "\\'")
-        response = response.replace('"', '\\"')
-        response = response.replace('\n', '')
-        response = response.replace('</script>', '<\/script>')
-        loader_script = self.CREATIVE_LOADER.replace('__ad_creative_content_token__', response)
-        loader_script = loader_script.replace('__ad_creative_width_token__', self.width)
-        loader_script = loader_script.replace('__ad_creative_height_token__', self.height)
-        loader_script = loader_script.encode('utf-8')
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-        temp.write(loader_script)
+        # print(response)
+        if not ads_debug:
+            response = response.decode('utf-8')
+            response = response.replace("'", "\\'")
+            response = response.replace('"', '\\"')
+            response = response.replace('\n', '')
+            # print(response)
+            response = response.replace('</script>', '<\/script>')
+            response = self.CREATIVE_LOADER.replace('__ad_creative_content_token__', response)
+            response = response.replace('__ad_creative_width_token__', self.width)
+            response = response.replace('__ad_creative_height_token__', self.height)
+            response = response.encode('utf-8')
+        temp.write(response)
         temp.close()
         webbrowser.open("file://"+temp.name)
 
@@ -289,7 +301,7 @@ class PreviewTemplateChannel(_BasePreviewCommand):
 
     def run(self, edit):
         response = super(PreviewTemplateChannel, self).run(edit)
-        print(response)
+        # print(response)
         webbrowser.open(response.decode('utf-8'))
 
 class SendEmailPreview(_BasePreviewCommand):
