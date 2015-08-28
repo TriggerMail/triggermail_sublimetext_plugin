@@ -17,4 +17,5 @@
      */
     "partner": "",
     "ads_action": "window_shopping_ads",
+    "ads_debug": false
 }
