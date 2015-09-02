@@ -2,20 +2,30 @@
     /*
     URL of the engine
      */
-    "engine": "http://www.triggermail.io/",
-    "preview_email": "mahmoud.arram@gmail.com",
-    "product_count": 5,
-    "use_cache": false,
+    // "engine": "http://www.triggermail.io/",
+    "engine": "http://andrew.triggeredmail.appspot.com/",
+    // "engine": "http://localhost:8080/",
+    "preview_email": "mike@triggermail.io",
+    "product_count": 10,
     /* Local path of a Recipe Rules file. */
-    "recipe_rules_file": "window_shopping.yaml",
+    // "recipe_rules_file": "abandoned_search.yaml",
     "products": {
-        "query": "id:MF502LL/A",
-        "max": 1
+        "query": "",
+        "max": 10
+    },
+
+    "search_terms": [""],
+
+    "customer": {
+        // "has_purchased": true
     },
     /*
     The name of the partner
      */
-    "partner": "",
-    "ads_action": "window_shopping_ads",
-    "ads_debug": false
+    "use_cache": false,
+    "partner": "jockey",
+    /*
+    Ads-specific settings
+    */
+    "ads_action": "window_shopping_ads"
 }
