@@ -250,7 +250,7 @@ class PreviewAdCreative(PreviewTemplate):
         extra_params.update(d)
         action = self.settings.get('ads_action', DEFAULT_AD_ACTION)
         extra_params.update(dict(action=action))
-        recipe_rules_path = '/src/%s/%s.yaml' % (self.partner, self.action)
+        recipe_rules_path = '/src/%s/%s.yaml' % (self.partner, action)
         if os.path.exists(recipe_rules_path):
             recipe_rules_content = read_file(recipe_rules_path)
             extra_params['recipe_rules'] = recipe_rules_content
