@@ -253,7 +253,7 @@ class PreviewAdCreative(PreviewTemplate):
         recipe_rules_path = '/src/%s/%s.yaml' % (self.partner, action)
         if os.path.exists(recipe_rules_path):
             recipe_rules_content = read_file(recipe_rules_path)
-            extra_params['recipe_rules'] = recipe_rules_content
+            extra_params['recipe_rules_file'] = recipe_rules_content
         else:
             logging.warn("Recipe rules file not found: %s" % recipe_rules_path)
 
