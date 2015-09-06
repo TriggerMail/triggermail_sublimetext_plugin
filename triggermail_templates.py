@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import sublime, sublime_plugin
+import logging
 import tempfile
 import urllib
 import webbrowser
@@ -254,7 +255,8 @@ class PreviewAdCreative(PreviewTemplate):
             recipe_rules_content = read_file(recipe_rules_path)
             extra_params['recipe_rules'] = recipe_rules_content
         else:
-            logging.error("recipe rules path doesn't exist!")
+            logging.warn("Recipe rules file not found: %s" % recipe_rules_path)
+
         return extra_params
 
     def parse_file_name(self):
