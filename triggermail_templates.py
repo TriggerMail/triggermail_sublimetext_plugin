@@ -226,8 +226,8 @@ class PreviewEton(PreviewTemplate):
         print("url is %s" % self.url)
 
         params = dict(partner=self.partner,
-                    action=self.action)
-        params["templates"] = json.dumps(self.generate_file_map())
+                    action=self.action,
+                    templates= json.dumps(self.generate_file_map()))
         try:
             response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
