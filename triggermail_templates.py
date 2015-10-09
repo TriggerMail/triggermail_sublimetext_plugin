@@ -158,7 +158,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         file_names = []
         for root, dirs, files in os.walk(self.path):
             for filename in files:
-                print('"%s"' % filename)
                 if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
                     file_names.append(filename)
 
@@ -168,7 +167,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             for filename in files:
                 # image_path = os.path.abspath(os.path.join(root, filename))
                 file_names.append(filename)
-        print(file_names)
         return file_names
 
 class PreviewTemplate(_BasePreviewCommand):
