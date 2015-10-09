@@ -293,7 +293,6 @@ class PreviewAdCreative(PreviewTemplate):
             response = response.replace('__ad_creative_width_token__', self.width)
             response = response.replace('__ad_creative_height_token__', self.height)
             response = response.encode('utf-8')
-        print('Response is: %s' % response)
         temp.write(response)
         temp.close()
         webbrowser.open("file://"+temp.name)
