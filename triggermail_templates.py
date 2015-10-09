@@ -239,8 +239,8 @@ class PreviewAdCreative(PreviewTemplate):
     def dissect_filename(self, template_filename):
         response = super(PreviewAdCreative, self).dissect_filename(template_filename)
         path = os.path.abspath(os.path.join(template_filename, os.pardir))
-        path = os.path.abspath(os.path.join(path, os.pardir))
-        self.image_path = os.path.abspath(os.path.join(path, "img"))
+        self.parent_path = os.path.abspath(os.path.join(path, os.pardir))
+        self.image_path = os.path.abspath(os.path.join(self.parent_path, "img"))
         # print(self.image_path)
         return response
 
@@ -296,6 +296,26 @@ class PreviewAdCreative(PreviewTemplate):
         temp.write(response)
         temp.close()
         webbrowser.open("file://"+temp.name)
+
+    def generate_file_list(self):
+        file_list = super(PreviewAdCreative, self).generate_file_list()
+        parent_list = []
+        for root, dirs, files in os.walk(self.parent_path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
+                    parent_list.append(filename)
+        file_list.extend(parent_list)
+        return file_list
+
+    def generate_file_map(self):
+        file_map = super(PreviewAdCreative, self).generate_file_map()
+        print(self.parent_path)
+        for root, dirs, files in os.walk(self.parent_path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map[filename] = contents
+        return file_map
 
 class PreviewTemplateChannel(_BasePreviewCommand):
     COMMAND_URL = "plugin/start"
