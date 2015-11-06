@@ -308,13 +308,29 @@ class PreviewAdCreative(PreviewTemplate):
         return file_list
 
     def generate_file_map(self):
-        file_map = super(PreviewAdCreative, self).generate_file_map()
-        print(self.parent_path)
+        # Read all the files in the given folder.
+        # We gather them all and then send them up to GAE.
+        # We do this rather than processing template locally. Because local processing
+        file_map = dict()
+        fdir = os.path.dirname(self.view.file_name()).replace(self.parent_path+'/', '')
+        for root, dirs, files in os.walk(self.path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map['%s/%s' % (fdir, filename)] = contents
+                    # file_map[filename] = contents
+        for root, dirs, files in os.walk(self.image_path):
+            for filename in files:
+                image_path = os.path.abspath(os.path.join(root, filename))
+                contents = encode_image(image_path)
+                file_map[filename] = contents
         for root, dirs, files in os.walk(self.parent_path):
             for filename in files:
                 if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
                     contents = read_file(os.path.join(root, filename))
                     file_map[filename] = contents
+        print(file_map.keys())
+
         return file_map
 
 class PreviewTemplateChannel(_BasePreviewCommand):
