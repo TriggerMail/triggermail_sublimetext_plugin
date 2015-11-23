@@ -186,6 +186,59 @@ class PreviewTemplate(_BasePreviewCommand):
         temp.close()
         webbrowser.open("file://"+temp.name)
 
+class PreviewEton(PreviewTemplate):
+    COMMAND_URL = "eton/preview/"
+
+    def get_extra_params(self):
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+        extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
+        if use_cache:
+            extra_params['templates'] = json.dumps({})
+        return extra_params
+
+    def dissect_filename(self, template_filename):
+        self.path = os.path.dirname(template_filename)
+        self.image_path = os.path.abspath(os.path.join(self.path, "img"))
+        template_filename = template_filename.replace(self.path, '')
+
+        self.action = template_filename.replace(os.sep, '').replace('.html', '')
+        self.partner = self.path.split(os.sep)[-1]
+        # You can override the partner in the settings file
+        self.partner = self.settings.get("partner", self.partner) or self.partner
+        self.partner = self.partner.replace("_templates", "")
+
+    def run(self, edit):
+        template_filename = self.view.file_name()
+        self.dissect_filename(template_filename)
+        if not template_filename:
+            return sublime.error_message("You have to provide a template path.")
+        if not self.action.startswith("eton"):
+            return sublime.error_message("Invalid eton template %s" % template_filename)
+        if not os.path.exists(template_filename):
+            return sublime.error_message("File does not exist")
+
+        self.url = get_url(self.settings) + self.COMMAND_URL+self.partner+'/'+self.action.replace('eton_','')
+        # get file names
+        file_names = json.dumps(self.generate_file_list())
+        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+
+        print("Attempting to render %s for %s" % (self.action, self.partner))
+        print("url is %s" % self.url)
+
+        params = dict(partner=self.partner,
+                    action=self.action,
+                    templates= json.dumps(self.generate_file_map()))
+        try:
+            response = urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
+        except urllib.error.URLError as e:
+            print(e)
+            return str(e)
+
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        temp.write(response.read())
+        temp.close()
+        webbrowser.open("file://"+temp.name)
+
 class PreviewAdCreative(PreviewTemplate):
 
     COMMAND_URL = "api/templates/render_ad_creative"

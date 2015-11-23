@@ -32,5 +32,8 @@
 {
     "caption": "TriggerMail: Validate Yumli file",
     "command": "validate_yumli"
-}
-]
+},
+{
+    "caption": "TriggerMail: preview ETON popup",
+    "command": "preview_eton"
+}]
