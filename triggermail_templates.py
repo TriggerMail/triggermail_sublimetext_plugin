@@ -455,7 +455,6 @@ class ValidateYumli(sublime_plugin.TextCommand):
                     return sublime.error_message(str(json.loads(error).get("text")))
                 except:
                     pass
-                return sublime.error_message("x")
             return sublime.error_message(str(e))
         return sublime.message_dialog('YAYYY Valid!')
 
