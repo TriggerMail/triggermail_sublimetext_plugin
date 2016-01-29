@@ -2,7 +2,7 @@
     /*
     URL of the engine
      */
-    "engine": "http://george-dot-triggeredmail.appspot.com/",
+    "engine": "http://triggermail.io/",
     "preview_email": "mahmoud.arram@gmail.com",
     "product_count": 5,
     "use_cache": false,
@@ -13,10 +13,17 @@
         "max": 1
     },
     /*
-    The name of the partner
-     */
+    Varying ways of using canned products/blocks
+    "canned_products": {
+        "blocks":
+        {
+            "recommendations": 5,
+            "filtered_products": 7
+        }
+    },
     "use_canned_blocks": false,
     "canned_product_count": 5,
+    */
     "partner": "",
     "ads_action": "window_shopping_ads",
     "ads_debug": false
