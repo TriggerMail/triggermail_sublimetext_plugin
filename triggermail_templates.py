@@ -8,7 +8,7 @@ import tempfile
 import urllib
 import webbrowser
 
-DEFAULT_CANNED_BLOCKS = True
+DEFAULT_CANNED_BLOCKS = False
 DEFAULT_USE_CACHE_SETTING = True
 DEFAULT_AD_ACTION = 'window_shopping_ads'
 DEFAULT_AD_CREATIVE_NAME = 'behavioral_ads'

@@ -12,11 +12,11 @@
         "query": "id:MF502LL/A",
         "max": 1
     },
-    "canned_product_count": 5,
     /*
     The name of the partner
      */
-    "use_canned_blocks": true,
+    "use_canned_blocks": false,
+    "canned_product_count": 5,
     "partner": "",
     "ads_action": "window_shopping_ads",
     "ads_debug": false
