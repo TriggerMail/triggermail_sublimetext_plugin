@@ -8,6 +8,7 @@ import tempfile
 import urllib
 import webbrowser
 
+DEFAULT_CANNED_BLOCKS = True
 DEFAULT_USE_CACHE_SETTING = True
 DEFAULT_AD_ACTION = 'window_shopping_ads'
 DEFAULT_AD_CREATIVE_NAME = 'behavioral_ads'
@@ -174,7 +175,10 @@ class PreviewTemplate(_BasePreviewCommand):
 
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
+        use_canned_blocks = self.settings.get('use_canned_blocks', DEFAULT_CANNED_BLOCKS)
+        extra_params = dict(
+            unique_user=os.environ['USER'] if use_cache else '',
+            use_canned_blocks=use_canned_blocks)
         if use_cache:
             extra_params['templates'] = json.dumps({})
         return extra_params
@@ -302,7 +306,11 @@ class PreviewAdCreative(PreviewTemplate):
         d = self.parse_file_name()
         extra_params.update(d)
         action = self.settings.get('ads_action', DEFAULT_AD_ACTION)
-        extra_params.update(dict(action=action))
+        use_canned_blocks = self.settings.get('use_canned_blocks', DEFAULT_CANNED_BLOCKS)
+        extra_params.update(dict(
+            action=action,
+            use_canned_blocks=use_canned_blocks))
+
         recipe_rules_path = '/src/%s/%s.yaml' % (self.partner, action)
         if os.path.exists(recipe_rules_path):
             recipe_rules_content = read_file(recipe_rules_path)
