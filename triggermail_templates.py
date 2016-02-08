@@ -174,13 +174,15 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 class PreviewTemplate(_BasePreviewCommand):
     COMMAND_URL = "api/templates/render_plugin_template"
 
+    def __init__(self, *args, **kwargs):
+        super(PreviewTemplate, self).__init__(*args, **kwargs)
+        canned_products = self.settings.get('canned_products', {})
+        if canned_products and 'input' in canned_products and 'blocks' not in canned_products:
+            self.COMMAND_URL = 'api/templates/render_canned_blocks_plugin_template'
+
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        canned_products = self.settings.get('canned_products', {})
         extra_params = dict(unique_user=os.environ['USER'] if use_cache else '')
-
-        if canned_products and 'input' in canned_products and not 'blocks' in canned_products:
-            self.COMMAND_URL = 'api/templates/render_canned_blocks_plugin_template'
 
         if use_cache:
             extra_params['templates'] = json.dumps({})
@@ -309,8 +311,6 @@ class PreviewAdCreative(PreviewTemplate):
         d = self.parse_file_name()
         extra_params.update(d)
         action = self.settings.get('ads_action', DEFAULT_AD_ACTION)
-        use_canned_blocks = self.settings.get('use_canned_blocks', DEFAULT_CANNED_BLOCKS)
-        canned_product_count = self.settings.get('canned_product_count', DEFAULT_CANNED_PRODUCT_COUNT)
         extra_params.update(dict(action=action))
 
         recipe_rules_path = '/src/%s/%s.yaml' % (self.partner, action)
