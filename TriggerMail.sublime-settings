@@ -13,17 +13,8 @@
         "max": 1
     },
     /*
-    Varying ways of using canned products/blocks
-    "canned_products": {
-        "blocks":
-        {
-            "recommendations": 5,
-            "filtered_products": 7
-        }
-    },
-    "use_canned_blocks": false,
-    "canned_product_count": 5,
-    */
+    The name of the partner
+     */
     "partner": "",
     "ads_action": "window_shopping_ads",
     "ads_debug": false
