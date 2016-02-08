@@ -176,12 +176,10 @@ class PreviewTemplate(_BasePreviewCommand):
 
     def get_extra_params(self):
         use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-        use_canned_blocks = self.settings.get('use_canned_blocks', DEFAULT_CANNED_BLOCKS)
-        canned_product_count = self.settings.get('canned_product_count', DEFAULT_CANNED_PRODUCT_COUNT)
-        extra_params = dict(
-            unique_user=os.environ['USER'] if use_cache else '',
-            use_canned_blocks=use_canned_blocks,
-            canned_product_count=canned_product_count)
+        canned_products = self.settings.get('canned_products', {})
+        if canned_products and 'input' in canned_products and not 'blocks' in canned_products:
+            self.COMMAND_URL = 'api/templates/render_canned_blocks_plugin_template'
+
         if use_cache:
             extra_params['templates'] = json.dumps({})
         return extra_params
