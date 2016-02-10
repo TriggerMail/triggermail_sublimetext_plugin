@@ -181,8 +181,7 @@ class PreviewTemplate(_BasePreviewCommand):
 
     def run(self, edit):
         use_canned_blocks = self.settings.get('use_canned_blocks', False)
-        canned_products = self.settings.get('canned_products', {})
-        if use_canned_blocks and not canned_products:
+        if use_canned_blocks:
             self.COMMAND_URL = "api/templates/render_canned_blocks_plugin_template"
 
         response = super(PreviewTemplate, self).run(edit)
