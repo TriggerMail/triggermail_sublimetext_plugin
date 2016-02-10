@@ -180,6 +180,7 @@ class PreviewTemplate(_BasePreviewCommand):
         return extra_params
 
     def run(self, edit):
+        self.COMMAND_URL = "api/templates/render_canned_blocks_plugin_template"
         response = super(PreviewTemplate, self).run(edit)
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
         temp.write(response)
