@@ -445,11 +445,6 @@ class ValidateYumli(sublime_plugin.TextCommand):
             file_name=recipe_rules_file
         )
 
-        print(params['yumli_file'].__class__)
-        print(urllib.parse.urlencode(params).__class__)
-        print(urllib.parse.urlencode(params).encode("utf-8").__class__)
-        print(urllib.parse.urlencode(params).encode("utf-8"))
-
         try:
             urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
         except urllib.error.URLError as e:
