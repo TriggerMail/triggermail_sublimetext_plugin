@@ -90,9 +90,9 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         if not use_cache:
             params["templates"] = json.dumps(self.generate_file_map())
         try:
-            cpn = self.settings.get("cpn")
-            assert cpn
-            params["cpn"] = cpn
+            nqe = self.settings.get("nqe")
+            assert nqe
+            params["nqe"] = nqe
         except:
             pass
         params.update(self.get_extra_params())
@@ -444,6 +444,11 @@ class ValidateYumli(sublime_plugin.TextCommand):
             yumli_file=read_file(recipe_rules_file),
             file_name=recipe_rules_file
         )
+
+        print(params['yumli_file'].__class__)
+        print(urllib.parse.urlencode(params).__class__)
+        print(urllib.parse.urlencode(params).encode("utf-8").__class__)
+        print(urllib.parse.urlencode(params).encode("utf-8"))
 
         try:
             urlopen(self.url, urllib.parse.urlencode(params).encode("utf-8"))
