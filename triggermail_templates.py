@@ -90,9 +90,9 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         if not use_cache:
             params["templates"] = json.dumps(self.generate_file_map())
         try:
-            cpn = self.settings.get("cpn")
-            assert cpn
-            params["cpn"] = cpn
+            nqe = self.settings.get("nqe")
+            assert nqe
+            params["nqe"] = nqe
         except:
             pass
         params.update(self.get_extra_params())
