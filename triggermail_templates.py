@@ -83,10 +83,11 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     customer_properties=json.dumps(self.settings.get("customer", {})),
                     canned_products=json.dumps(self.settings.get("canned_products", {})),
                     use_dev='dev.' in template_filename,
-                    generation=self.generation,
-                    variant_id=self.variant_id,
-                    subaction=self.subaction,
+                    generation=getattr(self, 'generation', 0),
+                    variant_id=getattr(self, 'variant_id', ''),
+                    subaction=getattr(self, 'subaction', ''),
                     file_names=file_names)
+        print(params)
         if not use_cache:
             params["templates"] = json.dumps(self.generate_file_map())
         try:
@@ -183,6 +184,87 @@ class PreviewTemplate(_BasePreviewCommand):
         use_canned_blocks = self.settings.get('use_canned_blocks', False)
         if use_canned_blocks:
             self.COMMAND_URL = "api/templates/render_canned_blocks_plugin_template"
+
+        response = super(PreviewTemplate, self).run(edit)
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+        temp.write(response)
+        temp.close()
+        webbrowser.open("file://"+temp.name)
+
+class PreviewNamedTemplate(PreviewTemplate):
+
+    COMMAND_URL = "api/templates/render_named_template"
+
+    def dissect_filename(self, template_filename):
+        self.path = os.path.dirname(template_filename)
+        parts = template_filename.split('/')
+        self.action = '/'.join(parts[-2:])
+        self.action = self.action.replace('.html', '')
+        print("my action: %s" % self.action)
+        path = os.path.abspath(os.path.join(template_filename, os.pardir))
+        self.parent_path = os.path.abspath(os.path.join(path, os.pardir))
+        self.image_path = os.path.abspath(os.path.join(self.parent_path, "img"))
+        self.partner = self.path.split(os.sep)[-1]
+        # You can override the partner in the settings file
+        self.partner = self.settings.get("partner", self.partner) or self.partner
+        self.partner = self.partner.replace("_templates", "")
+
+    def parse_file_name(self):
+        # TODO: We need a more elegant way of doing this. Perhaps with regex
+        template_filename = self.view.file_name()
+        parts = template_filename.split('/')
+        partner_name = parts[-3]
+        print(partner_name)
+        return dict(partner=partner_name, use_canned_products=True)
+
+    def generate_file_list(self):
+        file_list = super(PreviewNamedTemplate, self).generate_file_list()
+        parent_list = []
+        print('parent path: %s' % self.parent_path)
+        print('self path: %s' % self.path)
+        for root, dirs, files in os.walk(self.parent_path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml']):
+                    parent_list.append(filename)
+        file_list.extend(parent_list)
+        return file_list
+
+    def generate_file_map(self):
+        # Read all the files in the given folder.
+        # We gather them all and then send them up to GAE.
+        # We do this rather than processing template locally. Because local processing
+        file_map = dict()
+        fdir = os.path.dirname(self.view.file_name()).replace(self.parent_path+'/', '')
+        for root, dirs, files in os.walk(self.path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map['%s/%s' % (fdir, filename)] = contents
+                    # file_map[filename] = contents
+        for root, dirs, files in os.walk(self.image_path):
+            for filename in files:
+                image_path = os.path.abspath(os.path.join(root, filename))
+                contents = encode_image(image_path)
+                file_map[filename] = contents
+        for root, dirs, files in os.walk(self.parent_path):
+            for filename in files:
+                if any(filename.endswith(postfix) for postfix in ['.tracking', '.html', '.txt', '.yaml', '.js']):
+                    contents = read_file(os.path.join(root, filename))
+                    file_map[filename] = contents
+        print("my keys: %s" % file_map.keys())
+
+        return file_map
+
+    def get_extra_params(self):
+        extra_params = super(PreviewNamedTemplate, self).get_extra_params()
+        d = self.parse_file_name()
+        extra_params.update(d)
+        return extra_params
+
+    def run(self, edit):
+        use_auto_canned_blocks = self.settings.get('use_auto_canned_blocks', True)
+        if use_auto_canned_blocks:
+            self.COMMAND_URL = "api/templates/auto_canned_render_named_template"
 
         response = super(PreviewTemplate, self).run(edit)
         temp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")

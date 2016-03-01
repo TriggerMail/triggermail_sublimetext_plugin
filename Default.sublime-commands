@@ -11,6 +11,10 @@
   "command": "preview_ad_creative"
 },
 {
+  "caption": "TriggerMail: preview named template",
+  "command": "preview_named_template"
+},
+{
   "caption": "Keen: evaluate funnel",
   "command": "keen_funnels"
 },
