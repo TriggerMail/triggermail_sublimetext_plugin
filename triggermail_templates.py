@@ -215,7 +215,7 @@ class PreviewNamedTemplate(PreviewTemplate):
         parts = template_filename.split('/')
         partner_name = parts[-3]
         print(partner_name)
-        return dict(partner=partner_name, use_canned_products=True)
+        return dict(partner=partner_name, use_canned_products=True, use_random_canned_products=True)
 
     def generate_file_list(self):
         file_list = super(PreviewNamedTemplate, self).generate_file_list()
@@ -510,6 +510,38 @@ class SendTestPreview(_BasePreviewCommand):
     def run(self, edit):
         super(SendTestPreview, self).run(edit)
         print(self.view.set_status("trigger_mail", "Sent client test previews"))
+
+class SendNamedTestPreview(PreviewNamedTemplate):
+
+    COMMAND_URL = "api/templates/render_named_client_tests"
+
+    def get_extra_params(self):
+        res = super(SendNamedTestPreview, self).get_extra_params()
+        res.update(dict(email=self.settings.get("preview_email", "")))
+        return res
+
+    def run(self, edit):
+        use_auto_canned_blocks = self.settings.get('use_auto_canned_blocks', True)
+        if use_auto_canned_blocks:
+            self.COMMAND_URL = "api/templates/auto_canned_render_named_client_tests"
+        _BasePreviewCommand.run(self, edit)
+        print(self.view.set_status("trigger_mail", "Sent client test for named previews"))
+
+class SendNamedEmailPreview(PreviewNamedTemplate):
+
+    COMMAND_URL = "api/templates/forward_named_template"
+
+    def get_extra_params(self):
+        res = super(SendNamedEmailPreview, self).get_extra_params()
+        res.update(dict(email=self.settings.get("preview_email", "")))
+        return res
+
+    def run(self, edit):
+        use_auto_canned_blocks = self.settings.get('use_auto_canned_blocks', True)
+        if use_auto_canned_blocks:
+            self.COMMAND_URL = "api/templates/auto_canned_forward_named_template"
+        _BasePreviewCommand.run(self, edit)
+        print(self.view.set_status("trigger_mail", "Sent named previews"))
 
 class ValidateYumli(sublime_plugin.TextCommand):
     def run(self, edit):
