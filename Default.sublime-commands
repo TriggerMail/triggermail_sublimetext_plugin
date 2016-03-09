@@ -11,6 +11,18 @@
   "command": "preview_ad_creative"
 },
 {
+  "caption": "TriggerMail: preview named template",
+  "command": "preview_named_template"
+},
+{
+  "caption": "TriggerMail: test named templates on email clients",
+  "command": "send_named_test_preview"
+},
+{
+  "caption": "TriggerMail: send named template preview",
+  "command": "send_named_email_preview"
+},
+{
   "caption": "Keen: evaluate funnel",
   "command": "keen_funnels"
 },
