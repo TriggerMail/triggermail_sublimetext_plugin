@@ -193,7 +193,7 @@ class PreviewTemplate(_BasePreviewCommand):
 
 class PreviewNamedTemplate(PreviewTemplate):
 
-    COMMAND_URL = "api/templates/render_named_template"
+    COMMAND_URL = "api/templates/render_plugin_named_template"
 
     def dissect_filename(self, template_filename):
         self.path = os.path.dirname(template_filename)
@@ -517,7 +517,7 @@ class SendNamedTestPreview(PreviewNamedTemplate):
 
     def get_extra_params(self):
         res = super(SendNamedTestPreview, self).get_extra_params()
-        res.update(dict(email=self.settings.get("preview_email", "")))
+        res.update(dict(email=self.settings.get("preview_email", ""), cache_templates=False, unique_user=os.environ['USER']))
         return res
 
     def run(self, edit):
@@ -533,7 +533,7 @@ class SendNamedEmailPreview(PreviewNamedTemplate):
 
     def get_extra_params(self):
         res = super(SendNamedEmailPreview, self).get_extra_params()
-        res.update(dict(email=self.settings.get("preview_email", "")))
+        res.update(dict(email=self.settings.get("preview_email", ""), cache_templates=False, unique_user=os.environ['USER']))
         return res
 
     def run(self, edit):
