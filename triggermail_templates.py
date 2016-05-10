@@ -555,6 +555,8 @@ class ValidateYumli(sublime_plugin.TextCommand):
         self.partner = self.path.split(os.sep)[-1]
         # You can override the partner in the settings file
         self.partner = self.settings.get("partner", self.partner) or self.partner
+        print("Attempting to validate for %s" % (self.partner))
+        self.partner = self.partner.replace("_templates","")
 
         recipe_rules_file = self.view.file_name()
         if not recipe_rules_file:
