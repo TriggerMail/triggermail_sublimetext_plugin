@@ -549,13 +549,6 @@ class ValidateYumli(sublime_plugin.TextCommand):
         self.url = get_url(settings)
         self.url += "api/yumli/validate_yumli"
 
-        template_filename = self.view.file_name()
-        self.path = os.path.dirname(template_filename)
-
-        self.partner = self.path.split(os.sep)[-1]
-        # You can override the partner in the settings file
-        self.partner = self.settings.get("partner", self.partner) or self.partner
-
         recipe_rules_file = self.view.file_name()
         if not recipe_rules_file:
             return sublime.error_message("You have to provide a template path.")
@@ -567,7 +560,6 @@ class ValidateYumli(sublime_plugin.TextCommand):
         # send the contents of the file
         params = dict(
             yumli_file=read_file(recipe_rules_file),
-            partner=self.partner,
             file_name=recipe_rules_file
         )
 
