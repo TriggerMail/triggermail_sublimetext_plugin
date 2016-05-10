@@ -3,7 +3,7 @@
         "keys": ["super+ctrl+r"], "command": "preview_template"
     },
     {
-        "keys": ["super+ctrl+v"], "command": "validate_recipe_rules_file"
+        "keys": ["super+ctrl+v"], "command": "validate_yumli"
     },
     {
         "keys": ["super+ctrl+t"], "command": "preview_template_channel"
