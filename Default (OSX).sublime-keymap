@@ -10,9 +10,6 @@
     },
     {
         "keys": ["super+ctrl+y"], "command": "preview_ad_creative"
-    },
-    {
-        "keys": ["super+ctrl+o"], "command": "preview_template"
     }
 ]
 
