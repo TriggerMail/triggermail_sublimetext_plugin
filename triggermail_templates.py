@@ -55,6 +55,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         self.url = get_url(self.settings) + self.COMMAND_URL
+        use_pertinent_load = self.settings.get('pertinent_load', False)
 
         template_filename = self.view.file_name()
         if not template_filename:
@@ -65,6 +66,9 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             return sublime.error_message("File does not exist")
 
         self.dissect_filename(template_filename)
+
+
+
 
         # get file names
         file_names = json.dumps(self.generate_file_list())
@@ -127,6 +131,53 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
         # You can override the partner in the settings file
         self.partner = self.settings.get("partner", self.partner) or self.partner
         self.partner = self.partner.replace("_templates", "")
+
+    def generate_pertinent_file_names_and_map(self, template_filename):
+        template_filename = template_filename.replace(self.path + '/', '')
+        image_regex = "/img/" + self.partner + "/" + "(.*?)['\"]"
+        file_map = dict()
+        all_file_names_required = [template_filename]
+        all_images_required = []
+        # go through all files this template requires
+        # we get all the filenames, their contents, and images
+        for file_name in all_file_names_required:
+            # some templates include html files that don't exist. Just because they don't exist, doesn't
+            # mean it should automatically fail the command, they are most likely in jinja "if" statements
+            try:
+                contents = read_file(os.path.join(self.path, file_name))
+            except:
+                continue
+            file_map[file_name] = contents
+            # this regex finds all the other files the html file depends on. Because we're thenadding to
+            # the loop we're cycling through, this can be recursive
+            files_required_by_file = [file_name for _,file_name in \
+                                        re.findall("{%\s*(include|extends|import)\s*['\"](.*?)['\"]", contents)]
+            all_file_names_required += [x for x in files_required_by_file if x not in all_file_names_required]
+            images_required_by_file = re.findall(image_regex, contents)
+            all_images_required += [img for img in re.findall(image_regex, contents) if img not in all_images_required]
+
+        for img in all_images_required:
+            img_path = os.path.abspath(os.path.join(self.image_path, img))
+            contents = encode_image(img_path)
+            file_map[img] = contents
+
+        all_file_names_required += all_images_required
+
+        # lastly, we need to go through the other campaign files that accompany the html
+        template_base_name = template_filename.split('.')[0]
+        for postfix in ['.tracking', '.txt', '.yaml']:
+            if postfix == '.txt':
+                file_name = "_".join([self.action, "subject", self.subaction]) + postfix
+            else:
+                file_name = template_base_name+postfix
+            try:
+                all_file_names_required.append(file_name)
+                contents = read_file(os.path.join(self.path, file_name))
+                file_map[file_name] = contents
+            except:
+                sublime.error_message("trouble loading file " + file_name)
+
+        return (all_file_names_required, file_map)
 
     def generate_file_map(self):
         # Read all the files in the given folder.
