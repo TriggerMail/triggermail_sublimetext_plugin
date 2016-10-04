@@ -67,16 +67,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
 
         self.dissect_filename(template_filename)
 
-
-
-
-        # get file names
-        file_names = json.dumps(self.generate_file_list())
-        use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
-
-        print("Attempting to render %s for %s" % (self.action, self.partner))
-        print("url is %s" % self.url)
-
         params = dict(product_count=self.settings.get("product_count", 3),
                     partner=self.partner,
                     action=self.action,
@@ -89,11 +79,23 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     use_dev='dev.' in template_filename,
                     generation=getattr(self, 'generation', 0),
                     variant_id=getattr(self, 'variant_id', ''),
-                    subaction=getattr(self, 'subaction', ''),
-                    file_names=file_names)
+                    subaction=getattr(self, 'subaction', ''))
+
         print(params)
-        if not use_cache:
-            params["templates"] = json.dumps(self.generate_file_map())
+
+        if use_pertinent_load:
+            file_names, file_map = self.generate_pertinent_file_names_and_map(template_filename)
+            params['file_names'] = json.dumps(file_names)
+            params['templates'] = json.dumps(file_map)
+        else:
+            file_names = json.dumps(self.generate_file_list())
+            use_cache = self.settings.get('use_cache', DEFAULT_USE_CACHE_SETTING)
+            if not use_cache:
+                params["templates"] = json.dumps(self.generate_file_map())
+
+        print("Attempting to render %s for %s" % (self.action, self.partner))
+        print("url is %s" % self.url)
+
         try:
             nqe = self.settings.get("nqe")
             assert nqe
