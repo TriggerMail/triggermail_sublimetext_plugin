@@ -81,8 +81,6 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
                     variant_id=getattr(self, 'variant_id', ''),
                     subaction=getattr(self, 'subaction', ''))
 
-        print(params)
-
         if use_pertinent_load:
             file_names, file_map = self.generate_pertinent_file_names_and_map(template_filename)
             params['file_names'] = json.dumps(file_names)
@@ -93,6 +91,7 @@ class _BasePreviewCommand(sublime_plugin.TextCommand):
             if not use_cache:
                 params["templates"] = json.dumps(self.generate_file_map())
 
+        print(params)
         print("Attempting to render %s for %s" % (self.action, self.partner))
         print("url is %s" % self.url)
 
