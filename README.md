@@ -10,6 +10,8 @@ The plugin lets you edit and TriggerMail templates from within sublime. Usage go
 You can install the plugin directly from Github. See here for instructions:
 http://www.macdrifter.com/2012/08/install-sublime-packages-from-github.html
 
+* If these instructions do not work, try navigating to your packages folder and cloning this plugin directly into it. Then, open the settings file (as directed below) and change `use_cached` from true to false.
+
 ## Edit the settings file
 Press `Shift`+`Command`+`p` to get to the SublimeText command palette and pick `TriggerMail: open settings file`.
 Edit the configuration file to add your email address. The plugin will send email-client tests and previews to that address.
