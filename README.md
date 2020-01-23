@@ -7,8 +7,10 @@ The plugin lets you edit and TriggerMail templates from within sublime. Usage go
 3. Issue a command to preview the template in your browser. You will see a rendered version of your template, complete with inlined CSS and REAL products from your site.
 
 ## Install the plugin
-You can install the plugin directly from Github. See here for instructions:
-http://www.macdrifter.com/2012/08/install-sublime-packages-from-github.html
+You can install the plugin directly from Github:
+Press `Shift` + `Command` + `p` to get to the Sublime command palette and pick `Package Control: Add Repository`.
+Paste the GitHub address for this repository: https://github.com/TriggerMail/triggermail_sublimetext_plugin/
+`Shift` + `Command` + `p` and select `Package Control: Install Package`. You should now see the triggermail sublime text plugin.
 
 * If these instructions do not work, try navigating to your packages folder and cloning this plugin directly into it. Then, open the settings file (as directed below) and change `use_cached` from true to false.
 
