@@ -18,18 +18,23 @@ Paste the GitHub address for this repository: https://github.com/TriggerMail/tri
 Press `Shift`+`Command`+`p` to get to the SublimeText command palette and pick `TriggerMail: open settings file`.
 Edit the configuration file to add your email address. The plugin will send email-client tests and previews to that address.
 
+### If you can't edit the settings 
+
+#### Read Only
 On some occasions, the settings file is marked as read-only, depending on your installation and your OS. On OSX, that file is in `~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin/TriggerMail.sublime-settings` and you can make it writable by typing the following command in your terminal:
 
 ```
 chmod 777 ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin/TriggerMail.sublime-settings
 ```
 
+#### Directory not found
 Sometimes that file won't save properly, which can be because the triggermail_sublimetext_plugin directory isn't created, you can create it with
 
 ```
 mkdir ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/triggermail_sublimetext_plugin
 ```
 
+```
 {
     /*
     URL of the TriggerMail engine.
